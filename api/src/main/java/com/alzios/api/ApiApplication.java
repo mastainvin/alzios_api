@@ -1,5 +1,6 @@
 package com.alzios.api;
 
+import com.alzios.api.test.FillDatabase;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
