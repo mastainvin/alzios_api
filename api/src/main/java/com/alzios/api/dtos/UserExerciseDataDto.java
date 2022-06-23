@@ -4,6 +4,15 @@ public class UserExerciseDataDto {
     private Integer nbDone;
     private Double mark;
     private Double weight;
+    private Integer desiredNumberInTraining;
+
+    public Integer getDesiredNumberInTraining() {
+        return desiredNumberInTraining;
+    }
+
+    public void setDesiredNumberInTraining(Integer desiredNumberInTraining) {
+        this.desiredNumberInTraining = desiredNumberInTraining;
+    }
 
     public Integer getNbDone() {
         return nbDone;

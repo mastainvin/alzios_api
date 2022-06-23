@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -52,6 +53,7 @@ public class ProgramController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Add new program in database", description = "The newly created program ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Program created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating program")
@@ -71,6 +73,7 @@ public class ProgramController {
     }
 
     @PutMapping("/{programId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Update an program.")
     @ApiResponse(responseCode = "200", description = "Program updated successfully")
     @ApiResponse(responseCode = "500", description = "Error update program")
@@ -81,6 +84,7 @@ public class ProgramController {
     }
 
     @DeleteMapping("/{programId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Delete program from id")
     @ApiResponse(responseCode = "200", description = "Program deleted successfully")
     @ApiResponse(responseCode = "500", description = "Error delete program")

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -52,6 +53,7 @@ public class ExerciseTypeController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Add new exerciseType in database", description = "The newly created exerciseType ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "ExerciseType created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating exerciseType")
@@ -71,6 +73,7 @@ public class ExerciseTypeController {
     }
 
     @PutMapping("/{exerciseTypeId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Update an exerciseType.")
     @ApiResponse(responseCode = "200", description = "ExerciseType updated successfully")
     @ApiResponse(responseCode = "500", description = "Error update exerciseType")
@@ -81,6 +84,7 @@ public class ExerciseTypeController {
     }
 
     @DeleteMapping("/{exerciseTypeId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Delete exerciseType from id")
     @ApiResponse(responseCode = "200", description = "ExerciseType deleted successfully")
     @ApiResponse(responseCode = "500", description = "Error delete exerciseType")

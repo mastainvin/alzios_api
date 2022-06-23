@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -52,6 +53,7 @@ public class TrainingMethodController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Add new trainingMethod in database", description = "The newly created trainingMethod ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "TrainingMethod created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating trainingMethod")
@@ -71,6 +73,7 @@ public class TrainingMethodController {
     }
 
     @PutMapping("/{trainingMethodId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Update an trainingMethod.")
     @ApiResponse(responseCode = "200", description = "TrainingMethod updated successfully")
     @ApiResponse(responseCode = "500", description = "Error update trainingMethod")
@@ -81,6 +84,7 @@ public class TrainingMethodController {
     }
 
     @DeleteMapping("/{trainingMethodId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Delete trainingMethod from id")
     @ApiResponse(responseCode = "200", description = "TrainingMethod deleted successfully")
     @ApiResponse(responseCode = "500", description = "Error delete trainingMethod")

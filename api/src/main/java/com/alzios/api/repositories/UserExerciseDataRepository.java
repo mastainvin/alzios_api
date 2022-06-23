@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface UserExerciseDataRepository extends JpaRepository<UserExerciseData, UserExerciseDataId> {
 
-    Optional<UserExerciseData> findByUserExerciseDataIdExerciseIdAndUserExerciseDataIdUserId(Long exerciceId, Long userId);
+    Optional<UserExerciseData> findByUserExerciseDataIdExerciseIdAndUserExerciseDataIdUserId(Long exerciceId, String userId);
 
     List<UserExerciseData> findByUserExerciseDataIdUserId(Long userId);
 

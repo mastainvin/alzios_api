@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -52,6 +53,7 @@ public class BiomecanicFunctionController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Add new biomecanic function in database", description = "The newly created biomecanic function ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Biomecanic function created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating biomecanic function")
@@ -71,6 +73,7 @@ public class BiomecanicFunctionController {
     }
 
     @PutMapping("/{biomecanicfunctionId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Update a biomecanic function.")
     @ApiResponse(responseCode = "200", description = "Biomecanic function updated successfully")
     @ApiResponse(responseCode = "500", description = "Error update biomecanic function")
@@ -81,6 +84,7 @@ public class BiomecanicFunctionController {
     }
 
     @DeleteMapping("/{biomecanicFunction}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Delete biomecanic function from id")
     @ApiResponse(responseCode = "200", description = "Biomecanic function deleted successfully.")
     @ApiResponse(responseCode = "500", description = "Error delete biomecanic function.")

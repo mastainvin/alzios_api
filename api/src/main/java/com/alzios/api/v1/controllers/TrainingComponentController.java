@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -53,6 +54,7 @@ public class TrainingComponentController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Add new trainingComponent in database", description = "The newly created trainingComponent ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "TrainingComponent created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating trainingComponent")
@@ -62,6 +64,7 @@ public class TrainingComponentController {
     }
 
     @PutMapping("/")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Update an trainingComponent.")
     @ApiResponse(responseCode = "200", description = "TrainingComponent updated successfully")
     @ApiResponse(responseCode = "500", description = "Error update trainingComponent")
@@ -72,6 +75,7 @@ public class TrainingComponentController {
     }
 
     @DeleteMapping("/")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Delete trainingComponent from id")
     @ApiResponse(responseCode = "200", description = "TrainingComponent deleted successfully")
     @ApiResponse(responseCode = "500", description = "Error delete trainingComponent")

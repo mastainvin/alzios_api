@@ -15,6 +15,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -90,6 +91,7 @@ public class FileController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Add new files in database",description = "The newly created file ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Exercise created successfully")
     @ApiResponse(responseCode = "417", description = "Error creating exercise")
@@ -114,6 +116,7 @@ public class FileController {
     }
 
     @PutMapping("/{fileId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Update a file.")
     @ApiResponse(responseCode = "200", description = "File updated successfully")
     @ApiResponse(responseCode = "500", description = "Error update file")
@@ -138,6 +141,7 @@ public class FileController {
     }
 
     @DeleteMapping("/{fileId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Delete file from id")
     @ApiResponse(responseCode = "200", description = "File deleted successfully")
     @ApiResponse(responseCode = "500", description = "Error delete file")

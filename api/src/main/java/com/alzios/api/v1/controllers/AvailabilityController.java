@@ -13,9 +13,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.annotation.security.RolesAllowed;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.Optional;
@@ -52,6 +54,7 @@ public class AvailabilityController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Add new availability in database", description = "The newly created availability ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Availability created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating availability")
@@ -71,6 +74,7 @@ public class AvailabilityController {
     }
 
     @PutMapping("/{availabilityId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Update an availability.")
     @ApiResponse(responseCode = "200", description = "User updated successfully")
     @ApiResponse(responseCode = "500", description = "Error update user")
@@ -81,6 +85,7 @@ public class AvailabilityController {
     }
 
     @DeleteMapping("/{availabilityId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Delete availability from id")
     @ApiResponse(responseCode = "200", description = "Availability deleted successfully")
     @ApiResponse(responseCode = "500", description = "Error delete availability")

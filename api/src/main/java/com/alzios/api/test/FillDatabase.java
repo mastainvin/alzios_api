@@ -871,12 +871,12 @@ public class FillDatabase {
 
         TrainingComponent trainingComponent4 = new TrainingComponent();
         trainingComponent4.setTrainingComponentId(new TrainingComponentId(full2A2hforce, trainingMethod5x5, polyForce, quatre, 1));
-        trainingComponent4.setIsSuperSet(false);
+        trainingComponent4.setIsSuperSet(true);
         trainingComponentRepository.save(trainingComponent4);
 
         TrainingComponent trainingComponent5 = new TrainingComponent();
         trainingComponent5.setTrainingComponentId(new TrainingComponentId(full2A2hforce, trainingMethod5x5, polyTechnique, cinq, 2));
-        trainingComponent5.setIsSuperSet(false);
+        trainingComponent5.setIsSuperSet(true);
         trainingComponentRepository.save(trainingComponent5);
 
         TrainingComponent trainingComponent6 = new TrainingComponent();
@@ -954,7 +954,7 @@ public class FillDatabase {
         userTest.setUsername("vincent");
         userTest.setEmail("vincent@vincent.com");
         userTest.setIsAdmin(true);
-        userTest.setAvailabilities(new ArrayList<>(Arrays.asList(un90m, deux120m)));
+        userTest.setAvailabilities(new ArrayList<>(Arrays.asList(un120m, deux120m)));
         userTest.setEquipments(new ArrayList<>(Arrays.asList(halteres, poidslibres, elastiques, machines, parcdestreetworkout)));
         userTest.setGoal(force);
         userTest.setInjuries(new ArrayList<>());

@@ -12,11 +12,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,48 +55,54 @@ public class SerieController {
     }
 
     @GetMapping("/user/{userId}")
+    @PostAuthorize("#userId.equals(#principal.getName())")
     @Operation(summary = "Get every serie of an user(work with paging)")
     @ApiResponse(responseCode = "200", description = "Getting successful.")
-    public ResponseEntity<List<Serie>> getAllUserSeries(@PathVariable Long userId) {
+    public ResponseEntity<List<Serie>> getAllUserSeries(@PathVariable String userId, Principal principal) {
         List<Serie> allSeries = serieRepository.findByUserId(userId);
         return new ResponseEntity<>(allSeries, HttpStatus.OK);
     }
 
     @GetMapping("/user/{userId}/week")
+    @PostAuthorize("#userId.equals(#principal.getName())")
     @Operation(summary = "Get every serie of an user in the actual week.")
     @ApiResponse(responseCode = "200", description = "Getting successful.")
-    public ResponseEntity<List<Serie>> getUserWeekSeries(@PathVariable Long userId) {
+    public ResponseEntity<List<Serie>> getUserWeekSeries(@PathVariable String userId, Principal principal) {
         List<Serie> allSeries = serieRepository.findActualWeekByUserId(userId);
         return new ResponseEntity<>(allSeries, HttpStatus.OK);
     }
 
     @GetMapping("/user/{userId}/next")
+    @PostAuthorize("#userId.equals(#principal.getName())")
     @Operation(summary = "Get every serie of an user for the next training.")
     @ApiResponse(responseCode = "200", description = "Getting successful.")
-    public ResponseEntity<List<Serie>> getUserNextTraining(@PathVariable Long userId) {
+    public ResponseEntity<List<Serie>> getUserNextTraining(@PathVariable String userId, Principal principal) {
         List<Serie> allSeries = serieRepository.findNextTrainingByUserId(userId);
         return new ResponseEntity<>(allSeries, HttpStatus.OK);
     }
 
     @GetMapping("/user/{userId}/best/{exerciseId}")
+    @PostAuthorize("#userId.equals(#principal.getName())")
     @Operation(summary = "Get best serie of an user for an exercise.")
     @ApiResponse(responseCode = "200", description = "Getting successful.")
-    public ResponseEntity<List<Serie>> getUserBestExerciseSeries(@PathVariable Long userId, @PathVariable Long exerciseId) {
+    public ResponseEntity<List<Serie>> getUserBestExerciseSeries(@PathVariable String userId, @PathVariable Long exerciseId, Principal principal) {
         List<Serie> allSeries = serieRepository.findPreviousBestSeries(userId,exerciseId);
         return new ResponseEntity<>(allSeries, HttpStatus.OK);
     }
 
     @GetMapping("/user/{userId}/date")
+    @PostAuthorize("#userId.equals(#principal.getName())")
     @Operation(summary = "Get previous trainings dates.")
     @ApiResponse(responseCode = "200", description = "Getting successful.")
-    public ResponseEntity<List<String>> getUserBestExerciseSeries(@PathVariable Long userId) {
+    public ResponseEntity<List<String>> getUserBestExerciseSeries(@PathVariable String userId, Principal principal) {
         List<String> allSeries = serieRepository.findPreviousTrainingDates(userId);
         return new ResponseEntity<>(allSeries, HttpStatus.OK);
     }
     @GetMapping("/user/{userId}/date/{dateStr}")
+    @PostAuthorize("#userId.equals(#principal.getName())")
     @Operation(summary = "Get previous trainings dates.")
     @ApiResponse(responseCode = "200", description = "Getting successful.")
-    public ResponseEntity<List<Serie>> getUserBestExerciseSeries(@PathVariable Long userId,@PathVariable String dateStr) {
+    public ResponseEntity<List<Serie>> getUserBestExerciseSeries(@PathVariable String userId,@PathVariable String dateStr, Principal principal) {
         List<Serie> allSeries = serieRepository.findSeriesByDate(userId, dateStr);
         return new ResponseEntity<>(allSeries, HttpStatus.OK);
     }
@@ -130,10 +138,11 @@ public class SerieController {
     }
 
     @PutMapping("/user/{userId}/finish")
+    @PostAuthorize("#userId.equals(#principal.getName())")
     @Operation(summary = "Finish every series of an user.")
     @ApiResponse(responseCode = "200", description = "Serie updated successfully")
     @ApiResponse(responseCode = "500", description = "Error update serie")
-    public ResponseEntity<?> finishEveryUserSeries(@PathVariable Long userId) {
+    public ResponseEntity<?> finishEveryUserSeries(@PathVariable String userId, Principal principal) {
         serieRepository.finishAllByUserId(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -149,10 +158,11 @@ public class SerieController {
     }
 
     @DeleteMapping("/user/{userId}/clear")
+    @PostAuthorize("#userId.equals(#principal.getName())")
     @Operation(summary = "Delete series that user didn't trains.")
     @ApiResponse(responseCode = "200", description = "Serie deleted successfully")
     @ApiResponse(responseCode = "500", description = "Error delete serie")
-    public ResponseEntity<?> deleteUserSeriesNotDone(@PathVariable Long userId) {
+    public ResponseEntity<?> deleteUserSeriesNotDone(@PathVariable String userId, Principal principal) {
         serieRepository.deleteNotDoneByUserId(userId);
         return new ResponseEntity<>(HttpStatus.OK);
     }

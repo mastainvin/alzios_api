@@ -24,6 +24,17 @@ public class TrainingComponent {
     @Column(name = "is_super_set", nullable = false)
     private Boolean isSuperSet = false;
 
+    @Column(name = "nb_exercise_incomponent")
+    private Integer nbExerciseIncomponent = 1;
+
+    public Integer getNbExerciseIncomponent() {
+        return nbExerciseIncomponent;
+    }
+
+    public void setNbExerciseIncomponent(Integer nbExerciseIncomponent) {
+        this.nbExerciseIncomponent = nbExerciseIncomponent;
+    }
+
     public Boolean getIsSuperSet() {
         return isSuperSet;
     }

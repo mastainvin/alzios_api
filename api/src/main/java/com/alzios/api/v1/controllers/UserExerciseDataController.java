@@ -4,6 +4,8 @@ import com.alzios.api.domain.UserExerciseData;
 import com.alzios.api.domain.embeddedIds.UserExerciseDataId;
 import com.alzios.api.exceptions.ResourceNotFoundException;
 import com.alzios.api.repositories.UserExerciseDataRepository;
+import com.alzios.api.utils.JsonXMLUtils;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,11 +15,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -65,13 +69,26 @@ public class UserExerciseDataController {
     @Operation(summary = "Update an userExerciseData.")
     @ApiResponse(responseCode = "200", description = "UserExerciseData updated successfully")
     @ApiResponse(responseCode = "500", description = "Error update userExerciseData")
-    public ResponseEntity<?> updateUserExerciseData(@Valid @RequestBody UserExerciseDataId userExerciseDataId, @Valid @RequestBody UserExerciseData userExerciseData) {
+    public ResponseEntity<?> updateUserExerciseData(@RequestBody Map<String, Object> models) {
+        UserExerciseDataId  userExerciseDataId = null;
+        try {
+            userExerciseDataId = JsonXMLUtils.map2obj((Map<String, Object>)models.get("userExerciseDataId"), UserExerciseDataId.class);
+        } catch (Exception ignored) {
+        }
+        UserExerciseData userExerciseData = null;
+        try {
+            userExerciseData = JsonXMLUtils.map2obj((Map<String, Object>)models.get("userExerciseData"), UserExerciseData.class);
+        } catch (Exception ignored) {
+        }
+        assert userExerciseDataId != null;
         verifyUserExerciseData(userExerciseDataId);
+        assert userExerciseData != null;
         userExerciseData = userExerciseDataRepository.save(userExerciseData);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Delete userExerciseData from id")
     @ApiResponse(responseCode = "200", description = "UserExerciseData deleted successfully")
     @ApiResponse(responseCode = "500", description = "Error delete userExerciseData")

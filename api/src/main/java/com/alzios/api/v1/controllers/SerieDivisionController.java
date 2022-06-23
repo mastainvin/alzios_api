@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -52,6 +53,7 @@ public class SerieDivisionController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Add new serieDivision in database", description = "The newly created serieDivision ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "SerieDivision created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating serieDivision")
@@ -71,6 +73,7 @@ public class SerieDivisionController {
     }
 
     @PutMapping("/{serieDivisionId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Update an serieDivision.")
     @ApiResponse(responseCode = "200", description = "SerieDivision updated successfully")
     @ApiResponse(responseCode = "500", description = "Error update serieDivision")
@@ -81,6 +84,7 @@ public class SerieDivisionController {
     }
 
     @DeleteMapping("/{serieDivisionId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Delete serieDivision from id")
     @ApiResponse(responseCode = "200", description = "SerieDivision deleted successfully")
     @ApiResponse(responseCode = "500", description = "Error delete serieDivision")

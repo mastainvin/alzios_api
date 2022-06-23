@@ -41,17 +41,16 @@ public class BusinessLogicService {
      *
      * @param userId     the user
      */
-    public void createTraining(Long userId) {
+    public void createTraining(String userId) {
         createOrUpdateTraining(userId, new ProgramLogic());
     }
 
     /**
      * Interface with the api  for update user's training.
-     *
-     * @param userId     the user
+     *  @param userId     the user
      * @param programDto actual training
      */
-    public void updateTraining(Long userId, ProgramDto programDto) {
+    public void updateTraining(String userId, ProgramDto programDto) {
         ProgramLogic userProgram = new ProgramLogic();
         for(TrainingDto trainingDto : programDto.getTrainings()) {
             Optional<Training> training = trainingRepository.findById(trainingDto.getId());
@@ -104,8 +103,9 @@ public class BusinessLogicService {
      *
      * @param userId the user
      */
-    private void createOrUpdateTraining(Long userId, ProgramLogic userProgram) {
+    private void createOrUpdateTraining(String userId, ProgramLogic userProgram) {
         List<Exercise> exerciseList = new ArrayList<>();
+        Map<Exercise, UserExerciseData> exerciseDataMap= new HashMap<>();
         Optional<User> userRequest = userRepository.findById(userId);
         if(userRequest.isEmpty()){
             throw new ResourceNotFoundException("User with id " + userId + " not found;");
@@ -133,8 +133,11 @@ public class BusinessLogicService {
                             userExerciseDataRepository.save(newUserExerciseData);
                             userExerciseData = newUserExerciseData;
                         }
-                        trainingComponentLogic.getUserExerciseDataSet().add(userExerciseData);
-                        if(!exerciseList.contains(exercise)){ exerciseList.add(exercise); }
+                            trainingComponentLogic.getUserExerciseDataSet().add(userExerciseData);
+                            if(!exerciseList.contains(exercise)){
+                                exerciseList.add(exercise);
+                                exerciseDataMap.put(exercise, userExerciseData);
+                            }
                     }
 
                     trainingLogic.getTrainingComponentDtoList().add(trainingComponentLogic);
@@ -212,18 +215,20 @@ public class BusinessLogicService {
             }
         }
 
-        //mapEl correspond to a list of exercise with the same index every time we have to use them
+        //exerciseIntegerMap correspond to a list of exercise with the same index every time we have to use them
         Map<Exercise, Integer> exerciseIntegerMap = new HashMap<>();
         int exerciseIntegerMapSize = exerciseList.size();
+        int nbExercise = exerciseIntegerMapSize;
         for (int i = 0; i < exerciseIntegerMapSize; i++) {
             exerciseIntegerMap.put(exerciseList.get(i), i);
+            nbExercise += exerciseDataMap.get(exerciseList.get(i)).getDesiredNumberInTraining()-1;
         }
 
         /*
          * 3) We put a mark on every exercise for every place in the program
          */
-        int[][] tabExerciseTrainingComponent = new int[exerciseIntegerMapSize][exerciseIntegerMapSize];
-        int k = 0;
+        int[][] tabExerciseTrainingComponent = new int[nbExercise][nbExercise];
+
 
         Morphology userMorphology = user.getMorphology();
 
@@ -236,7 +241,7 @@ public class BusinessLogicService {
                 }
             }
         }
-
+        int k = 0;
         for(TrainingLogic trainingLogic : userProgram.getTrainingLogicList()) {
             for (TrainingComponentLogic trainingComponentLogic : trainingLogic.getTrainingComponentDtoList()) {
                 double mark = 0.0;
@@ -301,6 +306,17 @@ public class BusinessLogicService {
             }
         }
 
+        int indexExercisesRepeated = exerciseIntegerMapSize;
+        for(Exercise exercise : exerciseDataMap.keySet()) {
+                for(int nbExerciseRepeated = 1; nbExerciseRepeated < exerciseDataMap.get(exercise).getDesiredNumberInTraining(); nbExerciseRepeated++) {
+                    exerciseList.add(indexExercisesRepeated,exercise);
+                    for(k = 0; k < nbExercise ; k++){
+                        tabExerciseTrainingComponent[indexExercisesRepeated][k] = tabExerciseTrainingComponent[exerciseIntegerMap.get(exercise)][k];
+                    }
+                    indexExercisesRepeated++;
+                }
+        }
+
         /*
          * 4) We use the hungarian algorithm to find the result
          * The hungarian algorithm consist in solving an assignation problem
@@ -317,8 +333,8 @@ public class BusinessLogicService {
 
         // We find the max of the tab
         int max = 0;
-        for (i = 0; i < exerciseIntegerMapSize; i++) {
-            for (int j = 0; j < exerciseIntegerMapSize; j++) {
+        for (i = 0; i < nbExercise; i++) {
+            for (int j = 0; j < nbExercise; j++) {
                 if (max < tabExerciseTrainingComponent[i][j]) {
                     max = tabExerciseTrainingComponent[i][j];
                 }
@@ -327,8 +343,8 @@ public class BusinessLogicService {
 
         // For every box we compute the max - the box value
         // Here we want to make a min problem because the hungarian algorithm work with min value
-        for (i = 0; i < exerciseIntegerMapSize; i++) {
-            for (int j = 0; j < exerciseIntegerMapSize; j++) {
+        for (i = 0; i < nbExercise; i++) {
+            for (int j = 0; j < nbExercise; j++) {
                 tabExerciseTrainingComponent[i][j] = max - tabExerciseTrainingComponent[i][j];
             }
         }
@@ -391,7 +407,7 @@ public class BusinessLogicService {
                         // if the super set component are following there self in the training
                         // So the next component is the last super set.
 
-                        if(trainingComponentLogicSuperSet.getTrainingComponent().getIsSuperSet() && Math.abs(previous_layout - trainingComponentLogicSuperSet.getTrainingComponent().getTrainingComponentId().getLayout()) == 1) {
+                        if(trainingComponentLogicSuperSet.getTrainingComponent().getIsSuperSet() && Math.abs(previous_layout - trainingComponentLogicSuperSet.getTrainingComponent().getTrainingComponentId().getLayout()) == trainingComponentLogicSuperSet.getTrainingComponent().getNbExerciseIncomponent()) {
                             trainingComponentLogic = trainingComponentDtoIterator.next();
                             index++;
 
@@ -440,7 +456,7 @@ public class BusinessLogicService {
      * @param userId     the user
      * @return the user training
      */
-    public ProgramDto getTrainingByUserId(Long userId) {
+    public ProgramDto getTrainingByUserId(String userId) {
         List<Serie> series = serieRepository.findNextTrainingByUserId(userId);
         if(series.isEmpty()) {
             throw new ResourceNotFoundException("No training found for the user with id " + userId);
@@ -530,6 +546,7 @@ public class BusinessLogicService {
                 userExerciseDataDto.setMark(userExerciseData.getMark());
                 userExerciseDataDto.setNbDone(userExerciseData.getNbDone());
                 userExerciseDataDto.setWeight(userExerciseData.getWeight());
+                userExerciseDataDto.setDesiredNumberInTraining(userExerciseData.getDesiredNumberInTraining());
                 trainingComponentDto.setData(userExerciseDataDto);
             }
 
@@ -561,13 +578,14 @@ public class BusinessLogicService {
         return programDto;
     }
 
+
     /**
      * Interface with the api for superset training
      *
      * @param userId     the user
      * @return the user training
      */
-    public ProgramLogic getTrainingSuperSetByUserId(Long userId) {
+    public ProgramDto getTrainingSuperSetByUserId(String userId) {
         List<Serie> series = serieRepository.findNextTrainingByUserId(userId);
         if(series.isEmpty()) {
             throw new ResourceNotFoundException("No training found for the user with id " + userId);
@@ -581,86 +599,125 @@ public class BusinessLogicService {
      * @param series     the series
      * @return the user training
      */
-    private ProgramLogic getTrainingSuperSet(List<Serie> series) {
-        ProgramLogic programLogic = new ProgramLogic();
-        programLogic.setTrainingLogicList(new ArrayList<>());
+    private ProgramDto getTrainingSuperSet(List<Serie> series) {
+        ProgramDto programDto = new ProgramDto();
+        programDto.setTrainings(new ArrayList<>());
 
         for(Serie serie : series) {
             // We fill the training Map with every training if it's not already contained in.
             boolean inTrainingMap = false;
-            TrainingLogic trainingLogic = null;
-            for (TrainingLogic trainingLogicIter : programLogic.getTrainingLogicList()) {
-                inTrainingMap = true;
-                trainingLogic = trainingLogicIter;
+            TrainingDto trainingDto = null;
+            for (TrainingDto trainingDtoIter : programDto.getTrainings()) {
+
+                if(trainingDtoIter.getLayout().equals(serie.getTrainingComponent().getTrainingComponentId().getTraining().getLayout())) {
+                    inTrainingMap = true;
+                    trainingDto = trainingDtoIter;
+                }
+
             }
             if(!inTrainingMap) {
-                trainingLogic = new TrainingLogic(serie.getTrainingComponent().getTrainingComponentId().getTraining());
-                trainingLogic.setTrainingComponentDtoList(new ArrayList<>());
-                programLogic.getTrainingLogicList().add(trainingLogic);
+                Training training = serie.getTrainingComponent().getTrainingComponentId().getTraining();
+
+                trainingDto = new TrainingDto();
+                trainingDto.setDuration(training.getDuration());
+                trainingDto.setLayout(training.getLayout());
+                trainingDto.setTrainingComponents(new ArrayList<>());
+                trainingDto.setId(training.getId());
+                programDto.getTrainings().add(trainingDto);
             }
 
             // Same for the component
             boolean inTrainingComponentMap = false;
-            TrainingComponentLogic trainingComponentLogic = null;
-
-            for (TrainingComponentLogic trainingComponentLogicIter : trainingLogic.getTrainingComponentDtoList()) {
-                if(trainingComponentLogicIter.getTrainingComponent().getTrainingComponentId().getLayout() == serie.getTrainingComponent().getTrainingComponentId().getLayout()){
+            TrainingComponentDto trainingComponentDto = null;
+            for (TrainingComponentDto trainingComponentDtoIter : trainingDto.getTrainingComponents()) {
+                if(trainingComponentDtoIter.getLayout().equals(serie.getTrainingComponent().getTrainingComponentId().getLayout())){
                     inTrainingComponentMap = true;
-                    trainingComponentLogic = trainingComponentLogicIter;
-                    trainingComponentLogic.getSeries().add(serie);
-                } else {
-                    assert trainingComponentLogic != null;
-                    if (trainingComponentLogic.getTrainingComponent().getIsSuperSet() && Math.abs(trainingComponentLogic.getTrainingComponent().getTrainingComponentId().getLayout() - serie.getLayout()) <=1) {
-                        // If the training components are super set and following in the training. We say that the
-                        // serie among to the training component of the first exercise.
-                        TrainingComponentLogic trainingComponentLogicSuperset = new TrainingComponentLogic(serie.getTrainingComponent());
-
-                        if(trainingComponentLogicSuperset.getTrainingComponent().getIsSuperSet()) {
-                            inTrainingComponentMap = true;
-                            trainingComponentLogic = trainingComponentLogicSuperset;
-                            trainingComponentLogic.getSeries().add(serie);
-                        }
+                    trainingComponentDto = trainingComponentDtoIter;
+                    SerieDto serieDto = new SerieDto();
+                    serieDto.setExpectedWeight(serie.getExpectedWeight());
+                    serieDto.setExpectedRep(serie.getExpectedRepetitions());
+                    trainingComponentDto.getSeries().add(serieDto);
+                    trainingComponentDto.setSuperSet(serie.getTrainingComponent().getIsSuperSet());
+                } else if(trainingComponentDtoIter.getSuperSet() && Math.abs(trainingComponentDtoIter.getLayout() - serie.getTrainingComponent().getTrainingComponentId().getLayout()) <= serie.getTrainingComponent().getNbExerciseIncomponent()){
+                    // If the training components are super set and following in the training. We say that the serie among to
+                    // the training component of the first exercice.
+                    TrainingComponentDto trainingComponentDto1 = new TrainingComponentDto();
+                    trainingComponentDto1.setSuperSet(serie.getTrainingComponent().getIsSuperSet());
+                    if(trainingComponentDto1.getSuperSet()){
+                        inTrainingComponentMap = true;
+                        trainingComponentDto = trainingComponentDtoIter;
+                        SerieDto serieDto = new SerieDto();
+                        serieDto.setExpectedWeight(serie.getExpectedWeight());
+                        serieDto.setExpectedRep(serie.getExpectedRepetitions());
+                        trainingComponentDto.getSeries().add(serieDto);
                     }
                 }
             }
 
             if(!inTrainingComponentMap) {
-                trainingComponentLogic = new TrainingComponentLogic(serie.getTrainingComponent());
-                trainingComponentLogic.setSeries(new ArrayList<>());
-
-                trainingComponentLogic.getSeries().add(serie);
-                trainingComponentLogic.setUserExerciseDataSet(new HashSet<>());
-
-                // TODO if error here my friend
-                //trainingComponentDto.setUserExerciseDataSet(new HashSet<>(userExerciseDataRepository.findByUserExerciseDataIdUserId(serie.getUser().getId())));
-
-                trainingLogic.getTrainingComponentDtoList().add(trainingComponentLogic);
+                trainingComponentDto = new TrainingComponentDto();
+                //trainingComponentDto.setTrainingMethod(serie.getTrainingComponent().getTrainingComponentId().getTrainingMethod());
+                trainingComponentDto.setLayout(serie.getTrainingComponent().getTrainingComponentId().getLayout());
+                trainingComponentDto.setSeries(new ArrayList<>());
+                trainingComponentDto.setSuperSet(serie.getTrainingComponent().getIsSuperSet());
+                SerieDto serieDto = new SerieDto();
+                serieDto.setExpectedRep(serie.getExpectedRepetitions());
+                serieDto.setExpectedWeight(serie.getExpectedWeight());
+                trainingComponentDto.getSeries().add(serieDto);
+                List<ExerciseDto> exerciseDtos = new ArrayList<>();
+                /*for(Exercise exercise :serie.getTrainingComponent().getTrainingComponentId().getExerciseType().getExercises()) {
+                    ExerciseDto exerciseDto = new ExerciseDto();
+                    exerciseDto.setName(exercise.getName());
+                    exerciseDto.setDescription(exercise.getDescription());
+                    exerciseDtos.add(exerciseDto);
+                }*/
+                trainingComponentDto.setExercises(exerciseDtos);
+                trainingDto.getTrainingComponents().add(trainingComponentDto);
             }
 
-            Exercise exerciseChosen = serie.getExercise();
+            /*Exercise exerciseChosen = serie.getExercise();
             Optional<UserExerciseData> userExerciseDataExerciseChosen = userExerciseDataRepository.findByUserExerciseDataIdExerciseIdAndUserExerciseDataIdUserId(exerciseChosen.getId(), serie.getUser().getId());
 
             if(userExerciseDataExerciseChosen.isPresent()){
-                trainingComponentLogic.setChosenExercise(userExerciseDataExerciseChosen.get());
-            }
+                UserExerciseData userExerciseData = userExerciseDataExerciseChosen.get();
+                ExerciseDto exerciseDto = new ExerciseDto();
+                Exercise exercise = userExerciseData.getUserExerciseDataId().getExercise();
+                exerciseDto.setName(exercise.getName());
+                exerciseDto.setDescription(exercise.getDescription());
+                trainingComponentDto.setExerciseChosen(exerciseDto);
+                UserExerciseDataDto userExerciseDataDto = new UserExerciseDataDto();
+                userExerciseDataDto.setMark(userExerciseData.getMark());
+                userExerciseDataDto.setNbDone(userExerciseData.getNbDone());
+                userExerciseDataDto.setWeight(userExerciseData.getWeight());
+                trainingComponentDto.setData(userExerciseDataDto);
+            }*/
 
             boolean inExerciseList = false;
-            Optional<UserExerciseData> userExerciseData;
-            for(UserExerciseData userExerciseDataIter : trainingComponentLogic.getUserExerciseDataSet()){
-                if(userExerciseDataIter.getUserExerciseDataId().getExercise().equals(serie.getExercise())) {
+            Optional<ExerciseDto> exerciseDto;
+            for(ExerciseDto exerciseDtoIter : trainingComponentDto.getExercises()){
+                if (exerciseDtoIter.getName().equals(serie.getExercise().getName())) {
                     inExerciseList = true;
-                    userExerciseData = Optional.of(userExerciseDataIter);
+                    break;
                 }
             }
 
             if(!inExerciseList) {
-                userExerciseData = userExerciseDataRepository.findByUserExerciseDataIdExerciseIdAndUserExerciseDataIdUserId(serie.getExercise().getId(), serie.getUser().getId());
-                if(userExerciseData.isPresent()){
-                    trainingComponentLogic.getUserExerciseDataSet().add(userExerciseData.get());
-                }
+                Exercise exercise = serie.getExercise();
+                ExerciseDto exerciseDtoTemp = new ExerciseDto();
+                exerciseDtoTemp.setName(exercise.getName());
+                exerciseDtoTemp.setDescription(exercise.getDescription());
+
+                exerciseDto = Optional.of(exerciseDtoTemp);
+                trainingComponentDto.getExercises().add(exerciseDto.get());
             }
         }
-        return programLogic;
+
+        // Sorting
+        for(TrainingDto trainingDto : programDto.getTrainings()) {
+            Collections.sort(trainingDto.getTrainingComponents());
+        }
+        Collections.sort(programDto.getTrainings());
+        return programDto;
     }
 
 

@@ -12,7 +12,15 @@ public class TrainingComponentDto implements Comparable<TrainingComponentDto>{
     private TrainingMethod trainingMethod;
     private UserExerciseDataDto data;
     private List<SerieDto> series;
+    private Boolean isSuperSet;
 
+    public Boolean getSuperSet() {
+        return isSuperSet;
+    }
+
+    public void setSuperSet(Boolean superSet) {
+        isSuperSet = superSet;
+    }
 
     public List<SerieDto> getSeries() {
         return series;

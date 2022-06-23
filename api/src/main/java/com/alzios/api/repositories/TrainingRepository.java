@@ -25,5 +25,5 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
             AND p.goal_id = u.goal_id 
             AND a.layout = t.layout 
             AND u.id = ?1""",nativeQuery = true)
-    List<Training> findTrainingsByUserId(Long userId);
+    List<Training> findTrainingsByUserId(String userId);
 }

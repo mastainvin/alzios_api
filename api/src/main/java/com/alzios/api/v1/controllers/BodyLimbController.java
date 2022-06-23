@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
@@ -52,6 +53,7 @@ public class BodyLimbController {
     }
 
     @PostMapping("/")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Add new body limb in database", description = "The newly created body limb ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Body limb created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating body limb")
@@ -71,6 +73,7 @@ public class BodyLimbController {
     }
 
     @PutMapping("/{bodylimbId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Update a body limb.")
     @ApiResponse(responseCode = "200", description = "Body limb updated successfully")
     @ApiResponse(responseCode = "500", description = "Error update body limb")
@@ -81,6 +84,7 @@ public class BodyLimbController {
     }
 
     @DeleteMapping("/{bodylimbId}")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
     @Operation(summary = "Delete body limb from id")
     @ApiResponse(responseCode = "200", description = "Body limb deleted successfully")
     @ApiResponse(responseCode = "500", description = "Error delete body limb")

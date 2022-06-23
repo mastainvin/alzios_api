@@ -20,8 +20,19 @@ public class UserExerciseData {
     @Column(name = "mark", nullable = false)
     private Double mark = 5.0;
 
+    @Column(name = "desired_number_in_training")
+    private Integer desiredNumberInTraining = 1;
+
     @Column(name = "nb_done")
     private Integer nbDone = 0;
+
+    public Integer getDesiredNumberInTraining() {
+        return desiredNumberInTraining;
+    }
+
+    public void setDesiredNumberInTraining(Integer desiredNumberInTraining) {
+        this.desiredNumberInTraining = desiredNumberInTraining;
+    }
 
     public Integer getNbDone() {
         return nbDone;
