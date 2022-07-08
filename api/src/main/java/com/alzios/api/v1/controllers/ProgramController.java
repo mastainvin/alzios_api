@@ -57,19 +57,16 @@ public class ProgramController {
     @Operation(summary = "Add new program in database", description = "The newly created program ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Program created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating program")
-    public ResponseEntity<?> createProgram(@Valid @RequestBody Program program) {
+    public ResponseEntity<URI> createProgram(@Valid @RequestBody Program program) {
         program = programRepository.save(program);
 
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newProgramUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(program.getId())
                 .toUri();
-        responseHeaders.setLocation(newProgramUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>( newProgramUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{programId}")

@@ -60,19 +60,16 @@ public class UserController {
     @Operation(summary = "Add new user in database", description = "The newly created user ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "User created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating user")
-    public ResponseEntity<?> createUser(@Valid @RequestBody User user) {
+    public ResponseEntity<URI> createUser(@Valid @RequestBody User user) {
         user = userRepository.save(user);
 
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newUserUri = ServletUriComponentsBuilder
             .fromCurrentRequest()
             .path("/{id}")
             .buildAndExpand(user.getId())
             .toUri();
-        responseHeaders.setLocation(newUserUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(newUserUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{userId}")

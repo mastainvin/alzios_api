@@ -9,7 +9,7 @@ import java.util.List;
 @Entity
 public class User {
     @Id
-    @Column(name = "id", nullable = false)
+    @Column(name = "id", nullable = false, length = 50)
     private String id;
 
     @Column(name = "username", nullable = false, unique = true)

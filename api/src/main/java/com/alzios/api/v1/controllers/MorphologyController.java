@@ -57,19 +57,16 @@ public class MorphologyController {
     @Operation(summary = "Add new morphology in database", description = "The newly created morphology ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Morphology created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating morphology")
-    public ResponseEntity<?> createMorphology(@Valid @RequestBody Morphology morphology) {
+    public ResponseEntity<URI> createMorphology(@Valid @RequestBody Morphology morphology) {
         morphology = morphologyRepository.save(morphology);
 
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newMorphologyUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(morphology.getId())
                 .toUri();
-        responseHeaders.setLocation(newMorphologyUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(newMorphologyUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{morphologyId}")

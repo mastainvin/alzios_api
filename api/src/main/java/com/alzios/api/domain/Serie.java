@@ -11,21 +11,20 @@ public class Serie {
     @Column(name = "id", nullable = false)
     private Long id;
 
-    @JoinColumns({
-            @JoinColumn(name = "TRAINING_COMPONENT_LAYOUT", referencedColumnName = "LAYOUT"),
-            @JoinColumn(name = "TRAINING_COMPONENT_TRAINING_ID", referencedColumnName = "TRAINING_ID"),
-            @JoinColumn(name = "TRAINING_COMPONENT_TRAINING_METHOD_ID", referencedColumnName = "TRAINING_METHOD_ID"),
-            @JoinColumn(name = "TRAINING_COMPONENT_EXERCISE_TYPE_ID", referencedColumnName = "EXERCISE_TYPE_ID"),
-            @JoinColumn(name = "TRAINING_COMPONENT_BIOMECANIC_FUNCTION_LIST_ID", referencedColumnName = "BIOMECANIC_FUNCTION_LIST_ID")
+    @JoinColumns({@JoinColumn(name = "TRAINING_COMPONENT_LAYOUT", referencedColumnName = "layout"),
+            @JoinColumn(name = "TRAINING_COMPONENT_TRAINING_ID", referencedColumnName = "training_id"),
+            @JoinColumn(name = "TRAINING_COMPONENT_TRAINING_METHOD_ID", referencedColumnName = "training_method_id"),
+            @JoinColumn(name = "TRAINING_COMPONENT_EXERCISE_TYPE_ID", referencedColumnName = "exercise_type_id"),
+            @JoinColumn(name = "TRAINING_COMPONENT_BIOMECANIC_FUNCTION_LIST_ID", referencedColumnName = "biomecanic_function_list_id")
     })
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.DETACH})
     private TrainingComponent trainingComponent;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.DETACH})
     @JoinColumn(name = "exercise_id")
     private Exercise exercise;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = {CascadeType.DETACH})
     @JoinColumn(name = "user_id")
     private User user;
 

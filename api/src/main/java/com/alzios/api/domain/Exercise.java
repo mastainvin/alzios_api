@@ -21,25 +21,47 @@ public class Exercise extends RepresentationModel<Exercise> {
     @Column(name = "description", length = 1000)
     private String description;
 
+    @Column(name = "picture")
+    private String picture;
+
+    @Column(name = "video")
+    private String video;
 
     @OrderBy("name ASC")
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(name = "exercise_biomecanic_functions",
             joinColumns = @JoinColumn(name = "exercise_id"),
             inverseJoinColumns = @JoinColumn(name = "biomecanic_functions_id"))
     private List<BiomecanicFunction> biomecanicFunctions = new ArrayList<>();
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(name = "exercise_morphologies",
             joinColumns = @JoinColumn(name = "exercise_id"),
             inverseJoinColumns = @JoinColumn(name = "morphologies_id"))
     private List<Morphology> morphologies = new ArrayList<>();
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(name = "exercise_equipments",
             joinColumns = @JoinColumn(name = "exercise_id"),
             inverseJoinColumns = @JoinColumn(name = "equipments_id"))
     private List<Equipment> equipments = new ArrayList<>();
+
+    public String getVideo() {
+        return video;
+    }
+
+    public void setVideo(String video) {
+        this.video = video;
+    }
+
+    public String getPicture() {
+        return picture;
+    }
+
+    public void setPicture(String picture) {
+        this.picture = picture;
+    }
+
 
     public List<Equipment> getEquipments() {
         return equipments;

@@ -57,19 +57,16 @@ public class TrainingMethodController {
     @Operation(summary = "Add new trainingMethod in database", description = "The newly created trainingMethod ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "TrainingMethod created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating trainingMethod")
-    public ResponseEntity<?> createTrainingMethod(@Valid @RequestBody TrainingMethod trainingMethod) {
+    public ResponseEntity<URI> createTrainingMethod(@Valid @RequestBody TrainingMethod trainingMethod) {
         trainingMethod = trainingMethodRepository.save(trainingMethod);
 
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newTrainingMethodUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(trainingMethod.getId())
                 .toUri();
-        responseHeaders.setLocation(newTrainingMethodUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(newTrainingMethodUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{trainingMethodId}")

@@ -34,8 +34,6 @@ public class FillDatabase {
     @Autowired
     ExerciseTypeRepository exerciseTypeRepository;
 
-    @Autowired
-    FileRepository fileRepository;
 
     @Autowired
     GoalRepository goalRepository;
@@ -951,6 +949,7 @@ public class FillDatabase {
 
 
         User userTest = new User();
+        userTest.setId("b0a1931f-559b-47a4-9ba0-f3d2bc952d64");
         userTest.setUsername("vincent");
         userTest.setEmail("vincent@vincent.com");
         userTest.setIsAdmin(true);

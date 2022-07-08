@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class BusinessLogicService {
@@ -52,6 +53,7 @@ public class BusinessLogicService {
      */
     public void updateTraining(String userId, ProgramDto programDto) {
         ProgramLogic userProgram = new ProgramLogic();
+
         for(TrainingDto trainingDto : programDto.getTrainings()) {
             Optional<Training> training = trainingRepository.findById(trainingDto.getId());
             TrainingLogic trainingLogic = null;
@@ -120,7 +122,7 @@ public class BusinessLogicService {
         if(userProgram.getTrainingLogicList().isEmpty()) {
             for (Training training:trainingRepository.findTrainingsByUserId(userId)) {
                 TrainingLogic trainingLogic = new TrainingLogic(training);
-                for(TrainingComponent trainingComponent : training.getTrainingComponents()) {
+                for(TrainingComponent trainingComponent : training.getTrainingComponents().stream().filter(TrainingComponent::getInTraining).collect(Collectors.toList())) {
                     TrainingComponentLogic trainingComponentLogic = new TrainingComponentLogic(trainingComponent);
                     for (Exercise exercise: trainingComponent.getTrainingComponentId().getExerciseType().getExercises()) {
                         Optional<UserExerciseData> userExerciseDataRequest = userExerciseDataRepository.findByUserExerciseDataIdExerciseIdAndUserExerciseDataIdUserId(exercise.getId(), userId);
@@ -407,7 +409,7 @@ public class BusinessLogicService {
                         // if the super set component are following there self in the training
                         // So the next component is the last super set.
 
-                        if(trainingComponentLogicSuperSet.getTrainingComponent().getIsSuperSet() && Math.abs(previous_layout - trainingComponentLogicSuperSet.getTrainingComponent().getTrainingComponentId().getLayout()) == trainingComponentLogicSuperSet.getTrainingComponent().getNbExerciseIncomponent()) {
+                        if(trainingComponentLogicSuperSet.getTrainingComponent().getIsSuperSet() && Math.abs(previous_layout - trainingComponentLogicSuperSet.getTrainingComponent().getTrainingComponentId().getLayout()) == trainingComponentLogicSuperSet.getTrainingComponent().getNbExerciseInComponent()) {
                             trainingComponentLogic = trainingComponentDtoIterator.next();
                             index++;
 
@@ -457,8 +459,12 @@ public class BusinessLogicService {
      * @return the user training
      */
     public ProgramDto getTrainingByUserId(String userId) {
+        Optional<User> userRequest = userRepository.findById(userId);
+        if (userRequest.isEmpty()) {
+            throw new ResourceNotFoundException("User with id " + userId + " not found;");
+        }
         List<Serie> series = serieRepository.findNextTrainingByUserId(userId);
-        if(series.isEmpty()) {
+        if (series.isEmpty()) {
             throw new ResourceNotFoundException("No training found for the user with id " + userId);
         }
         return getTraining(series);
@@ -586,8 +592,12 @@ public class BusinessLogicService {
      * @return the user training
      */
     public ProgramDto getTrainingSuperSetByUserId(String userId) {
+        Optional<User> userRequest = userRepository.findById(userId);
+        if (userRequest.isEmpty()) {
+            throw new ResourceNotFoundException("User with id " + userId + " not found;");
+        }
         List<Serie> series = serieRepository.findNextTrainingByUserId(userId);
-        if(series.isEmpty()) {
+        if (series.isEmpty()) {
             throw new ResourceNotFoundException("No training found for the user with id " + userId);
         }
         return getTrainingSuperSet(series);
@@ -623,6 +633,8 @@ public class BusinessLogicService {
                 trainingDto.setLayout(training.getLayout());
                 trainingDto.setTrainingComponents(new ArrayList<>());
                 trainingDto.setId(training.getId());
+                trainingDto.setName(training.getName());
+                trainingDto.setDescription(trainingDto.getDescription());
                 programDto.getTrainings().add(trainingDto);
             }
 
@@ -630,7 +642,7 @@ public class BusinessLogicService {
             boolean inTrainingComponentMap = false;
             TrainingComponentDto trainingComponentDto = null;
             for (TrainingComponentDto trainingComponentDtoIter : trainingDto.getTrainingComponents()) {
-                if(trainingComponentDtoIter.getLayout().equals(serie.getTrainingComponent().getTrainingComponentId().getLayout())){
+                if (trainingComponentDtoIter.getLayout().equals(serie.getTrainingComponent().getTrainingComponentId().getLayout())) {
                     inTrainingComponentMap = true;
                     trainingComponentDto = trainingComponentDtoIter;
                     SerieDto serieDto = new SerieDto();
@@ -638,12 +650,12 @@ public class BusinessLogicService {
                     serieDto.setExpectedRep(serie.getExpectedRepetitions());
                     trainingComponentDto.getSeries().add(serieDto);
                     trainingComponentDto.setSuperSet(serie.getTrainingComponent().getIsSuperSet());
-                } else if(trainingComponentDtoIter.getSuperSet() && Math.abs(trainingComponentDtoIter.getLayout() - serie.getTrainingComponent().getTrainingComponentId().getLayout()) <= serie.getTrainingComponent().getNbExerciseIncomponent()){
+                } else if (trainingComponentDtoIter.getSuperSet() && Math.abs(trainingComponentDtoIter.getLayout() - serie.getTrainingComponent().getTrainingComponentId().getLayout()) <= serie.getTrainingComponent().getNbExerciseInComponent()) {
                     // If the training components are super set and following in the training. We say that the serie among to
                     // the training component of the first exercice.
                     TrainingComponentDto trainingComponentDto1 = new TrainingComponentDto();
                     trainingComponentDto1.setSuperSet(serie.getTrainingComponent().getIsSuperSet());
-                    if(trainingComponentDto1.getSuperSet()){
+                    if (trainingComponentDto1.getSuperSet()) {
                         inTrainingComponentMap = true;
                         trainingComponentDto = trainingComponentDtoIter;
                         SerieDto serieDto = new SerieDto();

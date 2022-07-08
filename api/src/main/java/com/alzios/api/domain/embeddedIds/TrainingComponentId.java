@@ -4,11 +4,11 @@ import com.alzios.api.domain.BiomecanicFunctionList;
 import com.alzios.api.domain.ExerciseType;
 import com.alzios.api.domain.Training;
 import com.alzios.api.domain.TrainingMethod;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Embeddable;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -17,19 +17,24 @@ public class TrainingComponentId implements Serializable {
 
     private Integer layout;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+    @JsonBackReference
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "training_id")
     private Training training;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "training_method_id")
     private TrainingMethod trainingMethod;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "exercise_type_id")
     private ExerciseType exerciseType;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+    @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "biomecanic_function_list_id")
     private BiomecanicFunctionList biomecanicFunctionList;
 
@@ -94,5 +99,16 @@ public class TrainingComponentId implements Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(layout, training, trainingMethod, exerciseType, biomecanicFunctionList);
+    }
+
+    @Override
+    public String toString() {
+        return "TrainingComponentId{" +
+                "layout=" + layout +
+                ", training=" + training +
+                ", trainingMethod=" + trainingMethod +
+                ", exerciseType=" + exerciseType +
+                ", biomecanicFunctionList=" + biomecanicFunctionList +
+                '}';
     }
 }

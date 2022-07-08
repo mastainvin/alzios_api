@@ -57,19 +57,15 @@ public class BiomecanicFunctionController {
     @Operation(summary = "Add new biomecanic function in database", description = "The newly created biomecanic function ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Biomecanic function created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating biomecanic function")
-    public ResponseEntity<?> createUser(@Valid @RequestBody BiomecanicFunction biomecanicFunction) {
+    public ResponseEntity<URI> createUser(@Valid @RequestBody BiomecanicFunction biomecanicFunction) {
         biomecanicFunction = biomecanicFunctionRepository.save(biomecanicFunction);
-
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newUserUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(biomecanicFunction.getId())
                 .toUri();
-        responseHeaders.setLocation(newUserUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(newUserUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{biomecanicfunctionId}")

@@ -1,11 +1,15 @@
 package com.alzios.api.domain;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.*;
+import lombok.Getter;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Table(name = "training")
 @Entity
@@ -27,14 +31,15 @@ public class Training {
     @Column(name = "duration", nullable = false)
     private Integer duration;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "training_type_id")
     private TrainingType trainingType;
 
     @OrderBy("trainingComponentId.layout  ASC")
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "training_id")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "trainingComponentId.training", orphanRemoval = true)
     private List<TrainingComponent> trainingComponents = new ArrayList<>();
+
+
 
     public List<TrainingComponent> getTrainingComponents() {
         return trainingComponents;
@@ -91,5 +96,18 @@ public class Training {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Training training = (Training) o;
+        return Objects.equals(id, training.id) && Objects.equals(name, training.name) && Objects.equals(description, training.description) && Objects.equals(layout, training.layout) && Objects.equals(duration, training.duration) && Objects.equals(trainingType, training.trainingType) && Objects.equals(trainingComponents, training.trainingComponents);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description, layout, duration, trainingType, trainingComponents);
     }
 }

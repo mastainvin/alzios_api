@@ -57,19 +57,16 @@ public class BodyLimbController {
     @Operation(summary = "Add new body limb in database", description = "The newly created body limb ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Body limb created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating body limb")
-    public ResponseEntity<?> createUser(@Valid @RequestBody BodyLimb bodyLimb) {
+    public ResponseEntity<URI> createUser(@Valid @RequestBody BodyLimb bodyLimb) {
         bodyLimb = bodyLimbRepository.save(bodyLimb);
 
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newUserUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(bodyLimb.getId())
                 .toUri();
-        responseHeaders.setLocation(newUserUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(newUserUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{bodylimbId}")

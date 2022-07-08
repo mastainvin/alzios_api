@@ -17,14 +17,14 @@ public class Program {
     @Column(name = "name")
     private String name;
 
-    @ManyToOne(cascade = CascadeType.ALL, optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "goal_id", nullable = false)
     private Goal goal;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(name = "program_availabilities",
-            joinColumns = @JoinColumn(name = "program_id"),
-            inverseJoinColumns = @JoinColumn(name = "availabilities_id"))
+            joinColumns = @JoinColumn(name = "program_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "availabilities_id", referencedColumnName = "id"))
     private List<Availability> availabilities = new ArrayList<>();
 
     @OrderBy("layout ASC")

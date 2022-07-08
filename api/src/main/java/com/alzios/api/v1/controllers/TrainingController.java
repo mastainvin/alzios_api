@@ -1,6 +1,7 @@
 package com.alzios.api.v1.controllers;
 
 import com.alzios.api.domain.Training;
+import com.alzios.api.domain.TrainingComponent;
 import com.alzios.api.exceptions.ResourceNotFoundException;
 import com.alzios.api.repositories.TrainingRepository;
 import io.swagger.v3.oas.annotations.Operation;
@@ -19,6 +20,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/v1/training")
@@ -48,8 +50,11 @@ public class TrainingController {
     @Operation(summary = "Get every training (work with paging)")
     @ApiResponse(responseCode = "200", description = "Getting successful.")
     public ResponseEntity<Page<Training>> getAllTrainings(Pageable pageable) {
-        Page<Training> allTrainings = trainingRepository.findAll(pageable);
-        return new ResponseEntity<>(allTrainings, HttpStatus.OK);
+        Page<Training> trainings = trainingRepository.findAll(pageable);
+        for(Training training : trainings){
+            training.setTrainingComponents(training.getTrainingComponents().stream().filter(TrainingComponent::getInTraining).collect(Collectors.toList()));
+        }
+        return new ResponseEntity<>(trainings, HttpStatus.OK);
     }
 
     @PostMapping("/")
@@ -57,19 +62,16 @@ public class TrainingController {
     @Operation(summary = "Add new training in database", description = "The newly created training ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Training created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating training")
-    public ResponseEntity<?> createTraining(@Valid @RequestBody Training training) {
+    public ResponseEntity<URI> createTraining(@Valid @RequestBody Training training) {
         training = trainingRepository.save(training);
 
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newTrainingUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(training.getId())
                 .toUri();
-        responseHeaders.setLocation(newTrainingUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(newTrainingUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{trainingId}")

@@ -3,6 +3,7 @@ package com.alzios.api.domain;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Table(name = "training_method")
 @Entity
@@ -28,7 +29,7 @@ public class TrainingMethod {
     private Double weightMin;
 
     @OrderBy("layout ASC")
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "training_method_id")
     private List<SerieDivision> serieDivisions = new ArrayList<>();
 
@@ -86,5 +87,18 @@ public class TrainingMethod {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TrainingMethod that = (TrainingMethod) o;
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(repMax, that.repMax) && Objects.equals(repMin, that.repMin) && Objects.equals(weightMax, that.weightMax) && Objects.equals(weightMin, that.weightMin) && Objects.equals(serieDivisions, that.serieDivisions);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, repMax, repMin, weightMax, weightMin, serieDivisions);
     }
 }

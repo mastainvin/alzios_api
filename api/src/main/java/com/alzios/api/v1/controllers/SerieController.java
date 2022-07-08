@@ -112,19 +112,16 @@ public class SerieController {
     @Operation(summary = "Add new serie in database", description = "The newly created serie ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Serie created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating serie")
-    public ResponseEntity<?> createSerie(@Valid @RequestBody Serie serie) {
+    public ResponseEntity<URI> createSerie(@Valid @RequestBody Serie serie) {
         serie = serieRepository.save(serie);
 
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newSerieUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(serie.getId())
                 .toUri();
-        responseHeaders.setLocation(newSerieUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(newSerieUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{serieId}")

@@ -3,6 +3,7 @@ package com.alzios.api.domain;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Table(name = "exercise_type")
 @Entity
@@ -19,7 +20,7 @@ public class ExerciseType {
     private String description;
 
     @OrderBy("name ASC")
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(name = "exercise_type_exercises",
             joinColumns = @JoinColumn(name = "exercise_type_id"),
             inverseJoinColumns = @JoinColumn(name = "exercises_id"))
@@ -56,5 +57,18 @@ public class ExerciseType {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ExerciseType that = (ExerciseType) o;
+        return Objects.equals(id, that.id) && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(exercises, that.exercises);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description, exercises);
     }
 }

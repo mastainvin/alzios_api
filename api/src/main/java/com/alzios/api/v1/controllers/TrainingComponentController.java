@@ -68,8 +68,8 @@ public class TrainingComponentController {
     @Operation(summary = "Update an trainingComponent.")
     @ApiResponse(responseCode = "200", description = "TrainingComponent updated successfully")
     @ApiResponse(responseCode = "500", description = "Error update trainingComponent")
-    public ResponseEntity<?> updateTrainingComponent(@Valid @RequestBody TrainingComponentId trainingComponentId, @Valid @RequestBody TrainingComponent trainingComponent) {
-        verifyTrainingComponent(trainingComponentId);
+    public ResponseEntity<?> updateTrainingComponent(@Valid @RequestBody TrainingComponent trainingComponent) {
+        verifyTrainingComponent(trainingComponent.getTrainingComponentId());
         trainingComponent = trainingComponentRepository.save(trainingComponent);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -82,6 +82,16 @@ public class TrainingComponentController {
     public ResponseEntity<?> deleteTrainingComponent(@Valid @RequestBody TrainingComponentId trainingComponentId) {
         verifyTrainingComponent(trainingComponentId);
         trainingComponentRepository.deleteById(trainingComponentId);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/notused")
+    @PreAuthorize("hasAuthority('SCOPE_admin')")
+    @Operation(summary = "Delete all trainingComponent not used in any training")
+    @ApiResponse(responseCode = "200", description = "TrainingComponents deleted successfully")
+    @ApiResponse(responseCode = "500", description = "Error delete trainingComponent")
+    public ResponseEntity<?> deleteTrainingComponentNotUsed() {
+        trainingComponentRepository.deleteByInTrainingIsFalse();
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

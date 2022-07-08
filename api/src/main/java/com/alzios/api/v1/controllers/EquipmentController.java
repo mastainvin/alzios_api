@@ -57,19 +57,16 @@ public class EquipmentController {
     @Operation(summary = "Add new equipment in database", description = "The newly created equipment ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Equipment created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating equipment")
-    public ResponseEntity<?> createEquipment(@Valid @RequestBody Equipment equipment) {
+    public ResponseEntity<URI> createEquipment(@Valid @RequestBody Equipment equipment) {
         equipment = equipmentRepository.save(equipment);
 
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newEquipmentUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(equipment.getId())
                 .toUri();
-        responseHeaders.setLocation(newEquipmentUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(newEquipmentUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{equipmentId}")

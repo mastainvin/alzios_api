@@ -9,9 +9,10 @@ public class SwaggerConfiguration {
     @Bean
     public GroupedOpenApi apiV1() {
         return GroupedOpenApi.builder()
-                .group("Alzios API V1")
+                .group("v1")
                 .pathsToMatch("/v1/**")
                 .build();
     }
+
 
 }

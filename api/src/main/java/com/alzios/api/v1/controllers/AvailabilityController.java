@@ -58,19 +58,16 @@ public class AvailabilityController {
     @Operation(summary = "Add new availability in database", description = "The newly created availability ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Availability created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating availability")
-    public ResponseEntity<?> createUser(@Valid @RequestBody Availability availability) {
+    public ResponseEntity<URI> createUser(@Valid @RequestBody Availability availability) {
         availability = availabilityRepository.save(availability);
 
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newUserUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(availability.getId())
                 .toUri();
-        responseHeaders.setLocation(newUserUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(newUserUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{availabilityId}")

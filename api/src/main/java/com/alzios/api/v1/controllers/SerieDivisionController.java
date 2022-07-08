@@ -57,19 +57,16 @@ public class SerieDivisionController {
     @Operation(summary = "Add new serieDivision in database", description = "The newly created serieDivision ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "SerieDivision created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating serieDivision")
-    public ResponseEntity<?> createSerieDivision(@Valid @RequestBody SerieDivision serieDivision) {
+    public ResponseEntity<URI> createSerieDivision(@Valid @RequestBody SerieDivision serieDivision) {
         serieDivision = serieDivisionRepository.save(serieDivision);
 
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newSerieDivisionUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(serieDivision.getId())
                 .toUri();
-        responseHeaders.setLocation(newSerieDivisionUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(newSerieDivisionUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{serieDivisionId}")

@@ -57,19 +57,16 @@ public class GoalController {
     @Operation(summary = "Add new goal in database", description = "The newly created goal ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Goal created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating goal")
-    public ResponseEntity<?> createGoal(@Valid @RequestBody Goal goal) {
+    public ResponseEntity<URI> createGoal(@Valid @RequestBody Goal goal) {
         goal = goalRepository.save(goal);
 
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newGoalUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(goal.getId())
                 .toUri();
-        responseHeaders.setLocation(newGoalUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(newGoalUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{goalId}")

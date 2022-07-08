@@ -57,19 +57,16 @@ public class ExerciseTypeController {
     @Operation(summary = "Add new exerciseType in database", description = "The newly created exerciseType ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "ExerciseType created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating exerciseType")
-    public ResponseEntity<?> createExerciseType(@Valid @RequestBody ExerciseType exerciseType) {
+    public ResponseEntity<URI> createExerciseType(@Valid @RequestBody ExerciseType exerciseType) {
         exerciseType = exerciseTypeRepository.save(exerciseType);
 
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newExerciseTypeUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(exerciseType.getId())
                 .toUri();
-        responseHeaders.setLocation(newExerciseTypeUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(newExerciseTypeUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{exerciseTypeId}")

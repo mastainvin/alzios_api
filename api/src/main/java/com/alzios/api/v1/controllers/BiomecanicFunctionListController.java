@@ -58,19 +58,16 @@ public class BiomecanicFunctionListController {
     @Operation(summary = "Add new biomecanic function list in database", description = "The newly created biomecanic function list ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "Biomecanic function list created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating biomecanic function list")
-    public ResponseEntity<?> createUser(@Valid @RequestBody BiomecanicFunctionList biomecanicFunctionList) {
+    public ResponseEntity<URI> createBiomecanicFunctionList(@Valid @RequestBody BiomecanicFunctionList biomecanicFunctionList) {
         biomecanicFunctionList = biomecanicFunctionListRepository.save(biomecanicFunctionList);
 
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newUserUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(biomecanicFunctionList.getId())
                 .toUri();
-        responseHeaders.setLocation(newUserUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(newUserUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{biomecanicfunctionlistId}")
@@ -78,7 +75,7 @@ public class BiomecanicFunctionListController {
     @Operation(summary = "Update an biomecanic function list.")
     @ApiResponse(responseCode = "200", description = "Biomecaninc function list updated successfully")
     @ApiResponse(responseCode = "500", description = "Error update biomecanic function list")
-    public ResponseEntity<?> updateUser(@PathVariable Long biomecanicfunctionlistId, @Valid @RequestBody BiomecanicFunctionList biomecanicFunctionList) {
+    public ResponseEntity<?> updateBiomecanicFunctionList(@PathVariable Long biomecanicfunctionlistId, @Valid @RequestBody BiomecanicFunctionList biomecanicFunctionList) {
         verifyBiomecanicFunctionList(biomecanicfunctionlistId);
         biomecanicFunctionList = biomecanicFunctionListRepository.save(biomecanicFunctionList);
         return new ResponseEntity<>(HttpStatus.OK);
@@ -89,7 +86,7 @@ public class BiomecanicFunctionListController {
     @Operation(summary = "Delete biomecanic function list from id")
     @ApiResponse(responseCode = "200", description = "Biomecanic function list deleted successfully")
     @ApiResponse(responseCode = "500", description = "Error delete biomecanic function list")
-    public ResponseEntity<?> deleteUser(@PathVariable Long biomecanicfunctionlistId) {
+    public ResponseEntity<?> deleteBiomecanicFunctionList(@PathVariable Long biomecanicfunctionlistId) {
         verifyBiomecanicFunctionList(biomecanicfunctionlistId);
         biomecanicFunctionListRepository.deleteById(biomecanicfunctionlistId);
         return new ResponseEntity<>(HttpStatus.OK);

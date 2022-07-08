@@ -1,7 +1,9 @@
 package com.alzios.api.v1.controllers;
 
+import com.alzios.api.domain.Training;
 import com.alzios.api.domain.TrainingType;
 import com.alzios.api.exceptions.ResourceNotFoundException;
+import com.alzios.api.repositories.TrainingRepository;
 import com.alzios.api.repositories.TrainingTypeRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,6 +29,9 @@ public class TrainingTypeController {
 
     @Autowired
     private TrainingTypeRepository trainingTypeRepository;
+
+    @Autowired
+    private TrainingRepository trainingRepository;
 
     protected TrainingType verifyTrainingType(Long trainingTypeId) throws ResourceNotFoundException {
         Optional<TrainingType> trainingType = trainingTypeRepository.findById(trainingTypeId);
@@ -57,19 +62,16 @@ public class TrainingTypeController {
     @Operation(summary = "Add new trainingType in database", description = "The newly created trainingType ID will be sent in the location response.")
     @ApiResponse(responseCode = "201", description = "TrainingType created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating trainingType")
-    public ResponseEntity<?> createTrainingType(@Valid @RequestBody TrainingType trainingType) {
+    public ResponseEntity<URI> createTrainingType(@Valid @RequestBody TrainingType trainingType) {
         trainingType = trainingTypeRepository.save(trainingType);
 
-        // Set the location in the header
-        HttpHeaders responseHeaders = new HttpHeaders();
         URI newTrainingTypeUri = ServletUriComponentsBuilder
                 .fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(trainingType.getId())
                 .toUri();
-        responseHeaders.setLocation(newTrainingTypeUri);
 
-        return new ResponseEntity<>(null, responseHeaders, HttpStatus.CREATED);
+        return new ResponseEntity<>(newTrainingTypeUri, HttpStatus.CREATED);
     }
 
     @PutMapping("/{trainingTypeId}")
@@ -89,7 +91,11 @@ public class TrainingTypeController {
     @ApiResponse(responseCode = "200", description = "TrainingType deleted successfully")
     @ApiResponse(responseCode = "500", description = "Error delete trainingType")
     public ResponseEntity<?> deleteTrainingType(@PathVariable Long trainingTypeId) {
-        verifyTrainingType(trainingTypeId);
+        TrainingType trainingType = verifyTrainingType(trainingTypeId);
+        for(Training training : trainingType.getTrainings()){
+            training.setTrainingType(null);
+            trainingRepository.save(training);
+        }
         trainingTypeRepository.deleteById(trainingTypeId);
         return new ResponseEntity<>(HttpStatus.OK);
     }
