@@ -40,11 +40,17 @@ public class Exercise extends RepresentationModel<Exercise> {
             inverseJoinColumns = @JoinColumn(name = "morphologies_id"))
     private List<Morphology> morphologies = new ArrayList<>();
 
-    @ManyToMany
-    @JoinTable(name = "exercise_equipments",
-            joinColumns = @JoinColumn(name = "exercise_id"),
-            inverseJoinColumns = @JoinColumn(name = "equipments_id"))
-    private List<Equipment> equipments = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinTable(name = "exercise_equipment_lists")
+    private List<EquipmentList> equipmentLists = new ArrayList<>();
+
+    public List<EquipmentList> getEquipmentLists() {
+        return equipmentLists;
+    }
+
+    public void setEquipmentLists(List<EquipmentList> equipmentLists) {
+        this.equipmentLists = equipmentLists;
+    }
 
     public String getVideo() {
         return video;
@@ -62,14 +68,6 @@ public class Exercise extends RepresentationModel<Exercise> {
         this.picture = picture;
     }
 
-
-    public List<Equipment> getEquipments() {
-        return equipments;
-    }
-
-    public void setEquipments(List<Equipment> equipments) {
-        this.equipments = equipments;
-    }
 
     public List<Morphology> getMorphologies() {
         return morphologies;

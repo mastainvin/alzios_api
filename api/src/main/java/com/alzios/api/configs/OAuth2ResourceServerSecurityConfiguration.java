@@ -70,7 +70,7 @@ public class OAuth2ResourceServerSecurityConfiguration extends WebSecurityConfig
     @Bean
     public JwtDecoder jwtDecoder() {
 
-        String issuerUri = System.getenv("ISSUER_URI");
+        String issuerUri = "https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_Zc7AztJAx";
         NimbusJwtDecoder jwtDecoder = JwtDecoders.fromIssuerLocation(issuerUri);
 
         OAuth2TokenValidator<Jwt> withClockSkew = new DelegatingOAuth2TokenValidator<>(

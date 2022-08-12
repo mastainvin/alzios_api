@@ -10,6 +10,24 @@ public class TrainingDto implements Comparable<TrainingDto>{
     private Integer duration;
     private String name;
     private String description;
+    private  Integer intensity;
+    private Boolean isDone;
+
+    public Boolean getDone() {
+        return isDone;
+    }
+
+    public void setDone(Boolean done) {
+        isDone = done;
+    }
+
+    public  Integer getIntensity() {
+        return intensity;
+    }
+
+    public void setIntensity(Integer intensity) {
+        this.intensity = intensity;
+    }
 
     public String getName() {
         return name;

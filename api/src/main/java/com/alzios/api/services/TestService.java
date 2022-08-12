@@ -37,6 +37,7 @@ public class TestService {
         userTest.setEquipments(testDto.getEquipments());
         userRepository.save(userTest);
 
+
         businessLogicService.createTraining(userTest.getId());
     }
 

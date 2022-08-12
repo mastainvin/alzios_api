@@ -1,8 +1,11 @@
 package com.alzios.api.v1.controllers;
 
 import com.alzios.api.domain.Serie;
+import com.alzios.api.dtos.ProgramDto;
+import com.alzios.api.dtos.SerieDto;
 import com.alzios.api.exceptions.ResourceNotFoundException;
 import com.alzios.api.repositories.SerieRepository;
+import com.alzios.api.services.BusinessLogicService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +32,9 @@ public class SerieController {
 
     @Autowired
     private SerieRepository serieRepository;
+
+    @Autowired
+    private BusinessLogicService businessLogicService;
 
     protected Serie verifySerie(Long serieId) throws ResourceNotFoundException {
         Optional<Serie> serie = serieRepository.findById(serieId);
@@ -94,17 +100,26 @@ public class SerieController {
     @PostAuthorize("#userId.equals(#principal.getName())")
     @Operation(summary = "Get previous trainings dates.")
     @ApiResponse(responseCode = "200", description = "Getting successful.")
-    public ResponseEntity<List<String>> getUserBestExerciseSeries(@PathVariable String userId, Principal principal) {
-        List<String> allSeries = serieRepository.findPreviousTrainingDates(userId);
+    public ResponseEntity<List<String>> getUserAllTrainingsDates(@PathVariable String userId, Principal principal, Pageable pageable) {
+        List<String> allSeries = serieRepository.findPreviousTrainingDates(userId, pageable);
         return new ResponseEntity<>(allSeries, HttpStatus.OK);
     }
     @GetMapping("/user/{userId}/date/{dateStr}")
     @PostAuthorize("#userId.equals(#principal.getName())")
-    @Operation(summary = "Get previous trainings dates.")
+    @Operation(summary = "Get series of an user for a date.")
     @ApiResponse(responseCode = "200", description = "Getting successful.")
-    public ResponseEntity<List<Serie>> getUserBestExerciseSeries(@PathVariable String userId,@PathVariable String dateStr, Principal principal) {
+    public ResponseEntity<List<Serie>> getUserSerieWithDate(@PathVariable String userId,@PathVariable String dateStr, Principal principal) {
         List<Serie> allSeries = serieRepository.findSeriesByDate(userId, dateStr);
         return new ResponseEntity<>(allSeries, HttpStatus.OK);
+    }
+    @GetMapping("/user/{userId}/date/{dateStr}/training")
+    @PostAuthorize("#userId.equals(#principal.getName())")
+    @Operation(summary = "Get series of an user for a date.")
+    @ApiResponse(responseCode = "200", description = "Getting successful.")
+    public ResponseEntity<ProgramDto> getUserTrainingWithDate(@PathVariable String userId, @PathVariable String dateStr, Principal principal) {
+        List<Serie> allSeries = serieRepository.findSeriesByDate(userId, dateStr);
+        ProgramDto program = businessLogicService.getTrainingSuperSet(allSeries);
+        return new ResponseEntity<>(program, HttpStatus.OK);
     }
 
 
@@ -134,6 +149,29 @@ public class SerieController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    @PatchMapping("/{serieId}")
+    @Operation(summary = "Update an serie with partial data.")
+    @ApiResponse(responseCode = "200", description = "Serie updated successfully")
+    @ApiResponse(responseCode = "500", description = "Error update serie")
+    public ResponseEntity<?> patchSerie(@PathVariable Long serieId, @Valid @RequestBody SerieDto serieDto) {
+        Serie serie = verifySerie(serieId);
+
+        if (serieDto.getRepetitions() != null) {
+            serie.setRepetitions(serieDto.getRepetitions());
+        }
+        if (serieDto.getWeight() != null) {
+            serie.setWeight(serieDto.getWeight());
+        }
+        if(serieDto.getDate() != null){
+            serie.setDate(serieDto.getDate());
+        }
+        if(serieDto.getRpe() != null){
+            serie.setRpe(serieDto.getRpe());
+        }
+
+        serieRepository.save(serie);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
     @PutMapping("/user/{userId}/finish")
     @PostAuthorize("#userId.equals(#principal.getName())")
     @Operation(summary = "Finish every series of an user.")

@@ -4,7 +4,6 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +16,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 @Service
 public class FileService {
@@ -44,11 +43,11 @@ public class FileService {
     }
 
     // @Async annotation ensures that the method is executed in a different thread
-    private String generateUrl(String fileName, HttpMethod httpMethod) {
+    private String generateUrl(String fileName, HttpMethod get) {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new Date());
         calendar.add(Calendar.DATE, 1); // Generated URL will be valid for 24 hours
-        return amazonS3.generatePresignedUrl(s3BucketName, fileName, calendar.getTime(), httpMethod).toString();
+        return amazonS3.generatePresignedUrl(s3BucketName, fileName, calendar.getTime(), HttpMethod.GET).toString();
     }
 
     @Async
@@ -59,6 +58,7 @@ public class FileService {
         return generateUrl(fileName, HttpMethod.GET);
     }
 
+
     @Async
     public void delete(String fileName) {
         LOG.info("Deleting file with name {}", fileName);
@@ -68,6 +68,7 @@ public class FileService {
     @Async
     public void save(final MultipartFile multipartFile, String fileName) {
         try {
+            System.out.println(s3BucketName);
             final File file = convertMultiPartFileToFile(multipartFile);
             LOG.info("Uploading file with name {}", fileName);
             final PutObjectRequest putObjectRequest = new PutObjectRequest(s3BucketName, fileName, file);

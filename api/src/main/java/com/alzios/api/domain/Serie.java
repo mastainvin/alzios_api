@@ -38,7 +38,7 @@ public class Serie {
     private Integer repetitions;
 
     @Column(name = "rpe")
-    private Integer rpe;
+    private Double rpe;
 
     @Column(name = "expected_weight")
     private Double expectedWeight;
@@ -95,11 +95,11 @@ public class Serie {
         this.expectedWeight = expectedWeight;
     }
 
-    public Integer getRpe() {
+    public Double getRpe() {
         return rpe;
     }
 
-    public void setRpe(Integer rpe) {
+    public void setRpe(Double rpe) {
         this.rpe = rpe;
     }
 

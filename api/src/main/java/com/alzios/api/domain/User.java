@@ -1,5 +1,7 @@
 package com.alzios.api.domain;
 
+import org.springframework.lang.Nullable;
+
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import java.util.ArrayList;
@@ -31,6 +33,10 @@ public class User {
     @Column(name = "experience_to_reach")
     private Long experienceToReach;
 
+    @Column(name = "equipments_choosen")
+    private Boolean equipmentsChoosen = false;
+
+    @Nullable
     @OrderBy("layout ASC")
     @ManyToMany(cascade = {CascadeType.ALL})
     @JoinTable(name = "user_availabilities",
@@ -38,10 +44,12 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "availability_id", referencedColumnName = "id"))
     private List<Availability> availabilities = new ArrayList<>();
 
-    @ManyToOne(cascade = CascadeType.ALL, optional = false)
-    @JoinColumn(name = "goal_id", nullable = false)
+    @Nullable
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "goal_id")
     private Goal goal;
 
+    @Nullable
     @OrderBy("name ASC")
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "user_body_limbs",
@@ -56,9 +64,18 @@ public class User {
             inverseJoinColumns = @JoinColumn(name = "equipments_id"))
     private List<Equipment> equipments = new ArrayList<>();
 
-    @ManyToOne(cascade = CascadeType.ALL, optional = false)
-    @JoinColumn(name = "morphology_id", nullable = false)
+    @Nullable
+    @ManyToOne(cascade = {CascadeType.ALL})
+    @JoinColumn(name = "morphology_id")
     private Morphology morphology;
+
+    public Boolean getEquipmentsChoosen() {
+        return equipmentsChoosen;
+    }
+
+    public void setEquipmentsChoosen(Boolean equipmentsChoosen) {
+        this.equipmentsChoosen = equipmentsChoosen;
+    }
 
     public Long getExperienceToReach() {
         return experienceToReach;

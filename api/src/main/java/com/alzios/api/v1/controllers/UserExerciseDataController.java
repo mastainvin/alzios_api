@@ -1,9 +1,13 @@
 package com.alzios.api.v1.controllers;
 
+import com.alzios.api.domain.Exercise;
+import com.alzios.api.domain.User;
 import com.alzios.api.domain.UserExerciseData;
 import com.alzios.api.domain.embeddedIds.UserExerciseDataId;
 import com.alzios.api.exceptions.ResourceNotFoundException;
+import com.alzios.api.repositories.ExerciseRepository;
 import com.alzios.api.repositories.UserExerciseDataRepository;
+import com.alzios.api.repositories.UserRepository;
 import com.alzios.api.utils.JsonXMLUtils;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,6 +35,12 @@ public class UserExerciseDataController {
 
     @Autowired
     private UserExerciseDataRepository userExerciseDataRepository;
+
+    @Autowired
+    private ExerciseRepository exerciseRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     protected UserExerciseData verifyUserExerciseData(UserExerciseDataId userExerciseDataId) throws ResourceNotFoundException {
         Optional<UserExerciseData> userExerciseData = userExerciseDataRepository.findByUserExerciseDataIdExerciseIdAndUserExerciseDataIdUserId(userExerciseDataId.getExercise().getId(), userExerciseDataId.getUser().getId());
@@ -71,9 +81,26 @@ public class UserExerciseDataController {
     @ApiResponse(responseCode = "500", description = "Error update userExerciseData")
     public ResponseEntity<?> updateUserExerciseData(@RequestBody Map<String, Object> models) {
         UserExerciseDataId  userExerciseDataId = null;
+        String userId = null;
+        Long exerciseId = null;
         try {
-            userExerciseDataId = JsonXMLUtils.map2obj((Map<String, Object>)models.get("userExerciseDataId"), UserExerciseDataId.class);
+            userId = (String) models.get("userId");
+            exerciseId = Long.valueOf((Integer) models.get("exerciseId"));
+            Optional<User> userOptional = userRepository.findById(userId);
+            Optional<Exercise> exerciseOptional= exerciseRepository.findById(exerciseId);
+
+            if(userOptional.isEmpty()){
+                throw new ResourceNotFoundException("User with id " + userId + " not found.");
+            }
+
+            if(exerciseOptional.isEmpty()){
+                throw new ResourceNotFoundException("Exercise with id " + exerciseId + " not found.");
+            }
+
+
+            userExerciseDataId = new UserExerciseDataId(exerciseOptional.get(), userOptional.get());
         } catch (Exception ignored) {
+            throw ignored;
         }
         UserExerciseData userExerciseData = null;
         try {
@@ -83,6 +110,7 @@ public class UserExerciseDataController {
         assert userExerciseDataId != null;
         verifyUserExerciseData(userExerciseDataId);
         assert userExerciseData != null;
+        userExerciseData.setUserExerciseDataId(userExerciseDataId);
         userExerciseData = userExerciseDataRepository.save(userExerciseData);
         return new ResponseEntity<>(HttpStatus.OK);
     }

@@ -14,7 +14,7 @@ public class BiomecanicFunctionList {
     private Long id;
 
     @OrderBy("name ASC")
-    @ManyToMany(cascade = {CascadeType.REMOVE, CascadeType.DETACH})
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.REMOVE, CascadeType.REFRESH, CascadeType.DETACH})
     @JoinTable(name = "biomecanic_function_list_biomecanic_functions",
             joinColumns = @JoinColumn(name = "biomecanic_function_list_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "biomecanic_functions_id", referencedColumnName = "id"))

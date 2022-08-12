@@ -1,6 +1,5 @@
 package com.alzios.api.dtos;
 
-import com.alzios.api.domain.Exercise;
 import com.alzios.api.domain.TrainingMethod;
 
 import java.util.List;
@@ -9,8 +8,6 @@ public class TrainingComponentDto implements Comparable<TrainingComponentDto>{
     private List<ExerciseDto> exercises;
     private ExerciseDto exerciseChosen;
     private Integer layout;
-    private TrainingMethod trainingMethod;
-    private UserExerciseDataDto data;
     private List<SerieDto> series;
     private Boolean isSuperSet;
 
@@ -52,22 +49,6 @@ public class TrainingComponentDto implements Comparable<TrainingComponentDto>{
 
     public void setLayout(Integer layout) {
         this.layout = layout;
-    }
-
-    public TrainingMethod getTrainingMethod() {
-        return trainingMethod;
-    }
-
-    public void setTrainingMethod(TrainingMethod trainingMethod) {
-        this.trainingMethod = trainingMethod;
-    }
-
-    public UserExerciseDataDto getData() {
-        return data;
-    }
-
-    public void setData(UserExerciseDataDto data) {
-        this.data = data;
     }
 
     @Override

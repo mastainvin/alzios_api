@@ -1,6 +1,7 @@
 package com.alzios.api.repositories;
 
 import com.alzios.api.domain.Serie;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -49,8 +50,8 @@ public interface SerieRepository extends JpaRepository<Serie, Long> {
      * @param userId user concerned
      * @return
      */
-    @Query("select s.date from Serie s where s.user.id = :userId and not s.date is null group by s.date")
-    List<String> findPreviousTrainingDates(@Param("userId") String userId);
+    @Query("select s.date from Serie s where s.user.id = :userId and not s.date is null group by s.date order by s.date desc ")
+    List<String> findPreviousTrainingDates(@Param("userId") String userId, Pageable pageable);
 
     @Query("select s from Serie s where s.user.id = :userId and not s.date = :seriesDate")
     List<Serie> findSeriesByDate(@Param("userId") String userId, @Param("seriesDate") String seriesDate);

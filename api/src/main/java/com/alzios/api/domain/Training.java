@@ -1,12 +1,9 @@
 package com.alzios.api.domain;
 
-import com.fasterxml.jackson.annotation.*;
-import lombok.Getter;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
-import org.springframework.web.multipart.MultipartFile;
-
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,10 +32,20 @@ public class Training {
     @JoinColumn(name = "training_type_id")
     private TrainingType trainingType;
 
+    @Column(name = "intensity")
+    private @PositiveOrZero @Max(10) @Min(0) Integer intensity;
+
     @OrderBy("trainingComponentId.layout  ASC")
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "trainingComponentId.training", orphanRemoval = true)
     private List<TrainingComponent> trainingComponents = new ArrayList<>();
 
+    public @PositiveOrZero @Max(10) @Min(0) Integer getIntensity() {
+        return intensity;
+    }
+
+    public void setIntensity(@PositiveOrZero @Max(10) @Min(0) Integer intensity) {
+        this.intensity = intensity;
+    }
 
 
     public List<TrainingComponent> getTrainingComponents() {

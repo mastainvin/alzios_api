@@ -574,7 +574,7 @@ public class FillDatabase {
         full.setName("full");
         full.setDescription("no description");
         trainingTypeRepository.save(full);
-
+        /*
         // Exercises
         Exercise devCouchBarre = new Exercise();
         devCouchBarre.setName("développer couché barre");
@@ -591,6 +591,7 @@ public class FillDatabase {
         devCouchHaltere.setMorphologies(new ArrayList<>(Arrays.asList(longiligne)));
         devCouchHaltere.setBiomecanicFunctions(new ArrayList<>(Arrays.asList(brasAdduction, coudeExtension)));
         exerciseRepository.save(devCouchHaltere);
+
 
         Exercise pompes = new Exercise();
         pompes.setName("pompes");
@@ -946,18 +947,6 @@ public class FillDatabase {
         program2_1h30.setAvailabilities(new ArrayList<>(Arrays.asList(un90m, deux90m)));
         program2_1h30.setTrainings(new ArrayList<>(Arrays.asList(full2A1h30force,full2B1h30force)));
         programRepository.save(program2_1h30);
-
-
-        User userTest = new User();
-        userTest.setId("b0a1931f-559b-47a4-9ba0-f3d2bc952d64");
-        userTest.setUsername("vincent");
-        userTest.setEmail("vincent@vincent.com");
-        userTest.setIsAdmin(true);
-        userTest.setAvailabilities(new ArrayList<>(Arrays.asList(un120m, deux120m)));
-        userTest.setEquipments(new ArrayList<>(Arrays.asList(halteres, poidslibres, elastiques, machines, parcdestreetworkout)));
-        userTest.setGoal(force);
-        userTest.setInjuries(new ArrayList<>());
-        userTest.setMorphology(longiligne);
-        userRepository.save(userTest);
+        */
     }
 }
