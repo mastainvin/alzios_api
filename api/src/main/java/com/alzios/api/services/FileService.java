@@ -68,7 +68,6 @@ public class FileService {
     @Async
     public void save(final MultipartFile multipartFile, String fileName) {
         try {
-            System.out.println(s3BucketName);
             final File file = convertMultiPartFileToFile(multipartFile);
             LOG.info("Uploading file with name {}", fileName);
             final PutObjectRequest putObjectRequest = new PutObjectRequest(s3BucketName, fileName, file);

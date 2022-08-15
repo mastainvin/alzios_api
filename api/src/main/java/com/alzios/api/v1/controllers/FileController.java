@@ -41,7 +41,6 @@ public class FileController {
     @ApiResponse(responseCode = "200", description = "File uploaded.")
     @ApiResponse(responseCode = "500", description = "File not uploaded.")
     public ResponseEntity<Object> save(@RequestParam("file") MultipartFile multipartFile, @RequestParam("name") String name) {
-       System.out.println("File name: " + name);
         fileService.save(multipartFile, name);
         return new ResponseEntity<>(HttpStatus.OK);
     }
