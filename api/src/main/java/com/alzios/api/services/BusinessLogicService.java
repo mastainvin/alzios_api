@@ -117,12 +117,62 @@ public class BusinessLogicService {
             throw new ResourceNotFoundException("User with id " + userId + " not found;");
         }
         User user = userRequest.get();
+        List<Integer> trainingLayoutList = new ArrayList<>();
         /*
          * 1) : we construct the user structure
          * if we can't find the data in the user we try to find it in from the database
          */
         serieRepository.deleteNotDoneByUserId(userId);
 
+            for (Training training:trainingRepository.findTrainingsByUserId(userId)) {
+                if (!userProgram.getTrainingLogicList().contains(new TrainingLogic(training))) {
+                    TrainingLogic trainingLogic = new TrainingLogic(training);
+                    for (TrainingComponent trainingComponent : training.getTrainingComponents().stream().filter(TrainingComponent::getInTraining).collect(Collectors.toList())) {
+                        TrainingComponentLogic trainingComponentLogic = new TrainingComponentLogic(trainingComponent);
+                        for (Exercise exercise : trainingComponent.getTrainingComponentId().getExerciseType().getExercises()) {
+                            Optional<UserExerciseData> userExerciseDataRequest = userExerciseDataRepository.findByUserExerciseDataIdExerciseIdAndUserExerciseDataIdUserId(exercise.getId(), userId);
+                            UserExerciseData userExerciseData = null;
+                            if (userExerciseDataRequest.isPresent()) {
+                                userExerciseData = userExerciseDataRequest.get();
+                            } else {
+                                UserExerciseData newUserExerciseData = new UserExerciseData();
+                                newUserExerciseData.setUserExerciseDataId(new UserExerciseDataId(exercise, user));
+                                userExerciseDataRepository.save(newUserExerciseData);
+                                userExerciseData = newUserExerciseData;
+                            }
+                            trainingComponentLogic.getUserExerciseDataSet().add(userExerciseData);
+                            if (!exerciseList.contains(exercise)) {
+                                exerciseList.add(exercise);
+                                exerciseDataMap.put(exercise, userExerciseData);
+                            }
+                        }
+                        trainingLogic.getTrainingComponentDtoList().add(trainingComponentLogic);
+                    }
+                    Collections.sort(trainingLogic.getTrainingComponentDtoList());
+                    userProgram.getTrainingLogicList().add(trainingLogic);
+                    Collections.sort(userProgram.getTrainingLogicList());
+                } else {
+                    trainingLayoutList.add(training.getLayout());
+                    for (TrainingLogic trainingLogic : userProgram.getTrainingLogicList()) {
+                        for (TrainingComponentLogic trainingComponentLogic : trainingLogic.getTrainingComponentLogicList()) {
+                            for (UserExerciseData userExerciseData : trainingComponentLogic.getUserExerciseDataSet()) {
+                                trainingComponentLogic.getUserExerciseDataSet().add(userExerciseData);
+                                if (!exerciseList.contains(userExerciseData.getUserExerciseDataId().getExercise())) {
+                                    exerciseList.add(userExerciseData.getUserExerciseDataId().getExercise());
+                                }
+                                exerciseDataMap.put(userExerciseData.getUserExerciseDataId().getExercise(), userExerciseData);
+                            }
+
+                            //trainingLogic.getTrainingComponentDtoList().add(trainingComponentLogic);
+                        }
+                        Collections.sort(trainingLogic.getTrainingComponentDtoList());
+                        //userProgram.getTrainingLogicList().add(trainingLogic);
+                    }
+                    Collections.sort(userProgram.getTrainingLogicList());
+                }
+            }
+
+/*
         if(userProgram.getTrainingLogicList().isEmpty()) {
             List<Training> trainingList = trainingRepository.findTrainingsByUserId(userId);
             for (Training training:trainingRepository.findTrainingsByUserId(userId)) {
@@ -140,11 +190,11 @@ public class BusinessLogicService {
                             userExerciseDataRepository.save(newUserExerciseData);
                             userExerciseData = newUserExerciseData;
                         }
-                            trainingComponentLogic.getUserExerciseDataSet().add(userExerciseData);
-                            if(!exerciseList.contains(exercise)){
-                                exerciseList.add(exercise);
-                                exerciseDataMap.put(exercise, userExerciseData);
-                            }
+                        trainingComponentLogic.getUserExerciseDataSet().add(userExerciseData);
+                        if(!exerciseList.contains(exercise)){
+                            exerciseList.add(exercise);
+                            exerciseDataMap.put(exercise, userExerciseData);
+                        }
                     }
 
                     trainingLogic.getTrainingComponentDtoList().add(trainingComponentLogic);
@@ -168,8 +218,7 @@ public class BusinessLogicService {
                 //userProgram.getTrainingLogicList().add(trainingLogic);
             }
             Collections.sort(userProgram.getTrainingLogicList());
-        }
-
+        }*/
 
         /*
          * 2) : Removing the trainings that the user already did.
@@ -276,7 +325,8 @@ public class BusinessLogicService {
                         int card_biomecanicFunctions_exercise_trainingComponent = biomecanicFunctionSet.size();
 
 
-                        double cost_biomecanicFunctions = 2.0 * card_biomecanicFunctions_exercise_trainingComponent/ (card_biomecanicFunctions_exercise + card_biomecanicFunctions_trainingComponent);
+                        double cost_biomecanicFunctions = 2.0 * card_biomecanicFunctions_exercise_trainingComponent / (card_biomecanicFunctions_exercise + card_biomecanicFunctions_trainingComponent);
+
                         // Morphology cost
                         Set<Morphology> morphologySet = new HashSet<>(userExerciseData.getUserExerciseDataId().getExercise().getMorphologies());
                         morphologySet.retainAll(new ArrayList<>(Arrays.asList(user.getMorphology())));
@@ -288,27 +338,33 @@ public class BusinessLogicService {
 
                         double cost_morphology = 1.0;
                         if(card_morphologies_exercise_user == 0) {
-                            cost_morphology = 0.0001;
+                            cost_morphology = 2.0;
                         }
 
                         // Equipment cost
-                        AtomicReference<Double> cost_equipments = new AtomicReference<>(0.0001);
+                        AtomicReference<Double> cost_equipments = new AtomicReference<>(0.0);
 
-                        userExerciseData.getUserExerciseDataId().getExercise().getEquipmentLists().forEach(equipmentList -> {
+                        if(userExerciseData.getUserExerciseDataId().getExercise().getEquipmentLists().isEmpty()){
+                            cost_equipments.set(1.0);
+                        } else {
+                            userExerciseData.getUserExerciseDataId().getExercise().getEquipmentLists().forEach(equipmentList -> {
 
-                            Set<Equipment> equipmentSet = new HashSet<>(equipmentList.getEquipments());
-                            equipmentSet.retainAll(user.getEquipments());
+                                Set<Equipment> equipmentSet = new HashSet<>(equipmentList.getEquipments());
+                                equipmentSet.retainAll(user.getEquipments());
 
-                            int card_equipments_exercise = equipmentList.getEquipments().size();
-                            int card_equipments_exercise_user = equipmentSet.size();
+                                int card_equipments_exercise = equipmentList.getEquipments().size();
+                                int card_equipments_exercise_user = equipmentSet.size();
 
-                            if(0 != card_equipments_exercise_user || card_equipments_exercise ==0){
-                                cost_equipments.set(1.0);
-                            }
-                        });
+                                if(0 != card_equipments_exercise_user || card_equipments_exercise ==0){
+                                    cost_equipments.set(1.0);
+                                }
+                            });
+                        }
 
-
-                        int value = (int) Math.floor(1000000.0 * mark * cost_morphology * cost_biomecanicFunctions * cost_equipments.get() / cost_nbDone );
+                        if(mark == 0) {
+                            mark = 0.5;
+                        }
+                        int value = (int) Math.floor(1000000.0 * mark * Math.pow(cost_biomecanicFunctions, cost_morphology+ 1) * cost_equipments.get() / cost_nbDone );
                         tabExerciseTrainingComponent[exerciseIntegerMap.get(userExerciseData.getUserExerciseDataId().getExercise())][k] = value;
                     }
                 } else {
@@ -389,74 +445,76 @@ public class BusinessLogicService {
 
         // Then we build our series
         for(TrainingLogic trainingLogic : userProgram.getTrainingLogicList()) {
-            /*
-             * For every component we construct the series
-             * and if it's a super set.
-             */
-            Iterator<TrainingComponentLogic> trainingComponentDtoIterator = trainingLogic.getTrainingComponentDtoList().iterator();
+            if (!trainingLayoutList.contains(trainingLogic.getTraining().getLayout())) {
+                /*
+                 * For every component we construct the series
+                 * and if it's a super set.
+                 */
+                Iterator<TrainingComponentLogic> trainingComponentDtoIterator = trainingLogic.getTrainingComponentDtoList().iterator();
 
-            TrainingComponentLogic trainingComponentLogic = null;
+                TrainingComponentLogic trainingComponentLogic = null;
 
-            int index = 0;
+                int index = 0;
 
-            // if the component is the second component
-            boolean is_last_super_set = false;
+                // if the component is the second component
+                boolean is_last_super_set = false;
 
-            while(trainingComponentDtoIterator.hasNext()){
+                while (trainingComponentDtoIterator.hasNext()) {
 
-                if(!is_last_super_set) {
-                    trainingComponentLogic = trainingComponentDtoIterator.next();
-                    index++;
-                }
+                    if (!is_last_super_set) {
+                        trainingComponentLogic = trainingComponentDtoIterator.next();
+                        index++;
+                    }
 
-                List<TrainingComponentLogic> trainingComponentDtos_superSet = new ArrayList<>();
-                int previous_layout = trainingComponentLogic.getTrainingComponent().getTrainingComponentId().getLayout();
+                    List<TrainingComponentLogic> trainingComponentDtos_superSet = new ArrayList<>();
+                    int previous_layout = trainingComponentLogic.getTrainingComponent().getTrainingComponentId().getLayout();
 
-                do{
-                    trainingComponentDtos_superSet.add(trainingComponentLogic);
-                    if(trainingComponentDtoIterator.hasNext() && trainingComponentLogic.getTrainingComponent().getIsSuperSet()) {
-                        TrainingComponentLogic trainingComponentLogicSuperSet = trainingLogic.getTrainingComponentDtoList().get(index);
+                    do {
+                        trainingComponentDtos_superSet.add(trainingComponentLogic);
+                        if (trainingComponentDtoIterator.hasNext() && trainingComponentLogic.getTrainingComponent().getIsSuperSet()) {
+                            TrainingComponentLogic trainingComponentLogicSuperSet = trainingLogic.getTrainingComponentDtoList().get(index);
 
-                        // if the super set component are following there self in the training
-                        // So the next component is the last super set.
+                            // if the super set component are following there self in the training
+                            // So the next component is the last super set.
 
-                        if(trainingComponentLogicSuperSet.getTrainingComponent().getIsSuperSet() && Math.abs(previous_layout - trainingComponentLogicSuperSet.getTrainingComponent().getTrainingComponentId().getLayout()) == trainingComponentLogicSuperSet.getTrainingComponent().getNbExerciseInComponent()) {
-                            trainingComponentLogic = trainingComponentDtoIterator.next();
-                            index++;
+                            if (trainingComponentLogicSuperSet.getTrainingComponent().getIsSuperSet() && Math.abs(previous_layout - trainingComponentLogicSuperSet.getTrainingComponent().getTrainingComponentId().getLayout()) == trainingComponentLogicSuperSet.getTrainingComponent().getNbExerciseInComponent()) {
+                                trainingComponentLogic = trainingComponentDtoIterator.next();
+                                index++;
 
-                            is_last_super_set = true;
+                                is_last_super_set = true;
+                            } else {
+                                is_last_super_set = false;
+                            }
                         } else {
                             is_last_super_set = false;
                         }
-                    } else {
-                        is_last_super_set = false;
+                    } while (trainingComponentDtoIterator.hasNext() && is_last_super_set);
+
+                    TrainingMethod trainingMethod = trainingComponentLogic.getTrainingComponent().getTrainingComponentId().getTrainingMethod();
+
+                    int it = 0;
+
+                    // We construct every serie from the repartition from the data base.
+                    for (SerieDivision serieDivision : trainingComponentLogic.getTrainingComponent().getTrainingComponentId().getTrainingMethod().getSerieDivisions()) {
+                        TrainingComponentLogic trainingComponentLogicSerie = trainingComponentDtos_superSet.get(it);
+                        UserExerciseData userExerciseData = trainingComponentLogicSerie.getChosenExercise();
+                        Serie serie = new Serie();
+                        serie.setExpectedRepetitions(serieDivision.getNbRep());
+                        serie.setRepetitions(serieDivision.getNbRep());
+                        serie.setExpectedWeight(serieDivision.getWeight() * userExerciseData.getWeight() / 100);
+                        serie.setWeight(serieDivision.getWeight() * userExerciseData.getWeight() / 100);
+                        serie.setLayout(serieDivision.getLayout());
+                        serie.setInActualWeek(true);
+                        serie.setRestDuration(serieDivision.getRestDuration());
+
+                        serie.setTrainingComponent(trainingComponentLogicSerie.getTrainingComponent());
+                        serie.setExercise(userExerciseData.getUserExerciseDataId().getExercise());
+                        serie.setUser(user);
+
+                        serieRepository.save(serie);
+
+                        it = (it + 1) % trainingComponentDtos_superSet.size();
                     }
-                } while (trainingComponentDtoIterator.hasNext() && is_last_super_set);
-
-                TrainingMethod trainingMethod = trainingComponentLogic.getTrainingComponent().getTrainingComponentId().getTrainingMethod();
-
-                int it = 0;
-
-                // We construct every serie from the repartition from the data base.
-                for(SerieDivision serieDivision : trainingComponentLogic.getTrainingComponent().getTrainingComponentId().getTrainingMethod().getSerieDivisions()) {
-                    TrainingComponentLogic trainingComponentLogicSerie = trainingComponentDtos_superSet.get(it);
-                    UserExerciseData userExerciseData = trainingComponentLogicSerie.getChosenExercise();
-                    Serie serie = new Serie();
-                    serie.setExpectedRepetitions(serieDivision.getNbRep());
-                    serie.setRepetitions(serieDivision.getNbRep());
-                    serie.setExpectedWeight(serieDivision.getWeight() * userExerciseData.getWeight() / 100);
-                    serie.setWeight(serieDivision.getWeight() * userExerciseData.getWeight() / 100);
-                    serie.setLayout(serieDivision.getLayout());
-                    serie.setInActualWeek(true);
-                    serie.setRestDuration(serieDivision.getRestDuration());
-
-                    serie.setTrainingComponent(trainingComponentLogicSerie.getTrainingComponent());
-                    serie.setExercise(userExerciseData.getUserExerciseDataId().getExercise());
-                    serie.setUser(user);
-
-                    serieRepository.save(serie);
-
-                    it = (it + 1) % trainingComponentDtos_superSet.size();
                 }
             }
         }
@@ -528,6 +586,7 @@ public class BusinessLogicService {
                     serieDto.setExpectedWeight(serie.getExpectedWeight());
                     serieDto.setExpectedRep(serie.getExpectedRepetitions());
                     serieDto.setId(serie.getId());
+                    serieDto.setDate(serie.getDate());
                     serieDto.setLayout(serie.getLayout());
                     serieDto.setRestDuration(serie.getRestDuration());
                     serieDto.setWeight(serie.getWeight());
@@ -546,6 +605,7 @@ public class BusinessLogicService {
                 serieDto.setExpectedWeight(serie.getExpectedWeight());
                 serieDto.setExpectedRep(serie.getExpectedRepetitions());
                 serieDto.setId(serie.getId());
+                serieDto.setDate(serie.getDate());
                 serieDto.setLayout(serie.getLayout());
                 serieDto.setRestDuration(serie.getRestDuration());
                 serieDto.setWeight(serie.getWeight());
@@ -708,6 +768,7 @@ public class BusinessLogicService {
                     serieDto.setExpectedWeight(serie.getExpectedWeight());
                     serieDto.setExpectedRep(serie.getExpectedRepetitions());
                     serieDto.setId(serie.getId());
+                    serieDto.setDate(serie.getDate());
                     serieDto.setLayout(serie.getLayout());
                     serieDto.setRestDuration(serie.getRestDuration());
                     serieDto.setWeight(serie.getWeight());
@@ -727,6 +788,7 @@ public class BusinessLogicService {
                         serieDto.setExpectedWeight(serie.getExpectedWeight());
                         serieDto.setExpectedRep(serie.getExpectedRepetitions());
                         serieDto.setId(serie.getId());
+                        serieDto.setDate(serie.getDate());
                         serieDto.setLayout(serie.getLayout());
                         serieDto.setRestDuration(serie.getRestDuration());
                         serieDto.setWeight(serie.getWeight());
@@ -746,6 +808,7 @@ public class BusinessLogicService {
                 SerieDto serieDto = new SerieDto();
                 serieDto.setExpectedWeight(serie.getExpectedWeight());
                 serieDto.setExpectedRep(serie.getExpectedRepetitions());
+                serieDto.setDate(serie.getDate());
                 serieDto.setId(serie.getId());
                 serieDto.setLayout(serie.getLayout());
                 serieDto.setRestDuration(serie.getRestDuration());
@@ -798,10 +861,16 @@ public class BusinessLogicService {
                 exerciseDtoTemp.setDescription(exercise.getDescription());
 
                 if(exercise.getPicture() != null) {
-                    exerciseDtoTemp.setPicture(fileService.findByName(exercise.getPicture()));
+                    try {
+                        exerciseDtoTemp.setPicture(fileService.findByName(exercise.getPicture()));
+                    } catch (Exception ignored){
+                    }
                 }
                 if(exercise.getVideo() != null) {
-                    exerciseDtoTemp.setVideo(fileService.findByName(exercise.getVideo()));
+                    try {
+                        exerciseDtoTemp.setVideo(fileService.findByName(exercise.getVideo()));
+                    } catch (Exception ignored){
+                    }
                 }
 
                 List<List<Equipment>> equipmentLists = new ArrayList<>();

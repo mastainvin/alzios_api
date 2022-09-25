@@ -29,7 +29,7 @@ public class FileService {
     @Autowired
     private AmazonS3 amazonS3;
 
-    @Value("${AWS_BUCKET}")
+    @Value("alziosappfiles")
     private String s3BucketName;
 
     private File convertMultiPartFileToFile(final MultipartFile multipartFile) {
