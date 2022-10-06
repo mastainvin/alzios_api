@@ -468,7 +468,7 @@ public class BusinessLogicService {
 
                     List<TrainingComponentLogic> trainingComponentDtos_superSet = new ArrayList<>();
                     int previous_layout = trainingComponentLogic.getTrainingComponent().getTrainingComponentId().getLayout();
-
+                    int previous_number_of_exercise = trainingComponentLogic.getTrainingComponent().getNbExerciseInComponent();
                     do {
                         trainingComponentDtos_superSet.add(trainingComponentLogic);
                         if (trainingComponentDtoIterator.hasNext() && trainingComponentLogic.getTrainingComponent().getIsSuperSet()) {
@@ -477,11 +477,14 @@ public class BusinessLogicService {
                             // if the super set component are following there self in the training
                             // So the next component is the last super set.
 
-                            if (trainingComponentLogicSuperSet.getTrainingComponent().getIsSuperSet() && Math.abs(previous_layout - trainingComponentLogicSuperSet.getTrainingComponent().getTrainingComponentId().getLayout()) == trainingComponentLogicSuperSet.getTrainingComponent().getNbExerciseInComponent()) {
+                            // System.out.println(trainingComponentLogicSuperSet.getTrainingComponent() + " " + trainingComponentLogic.getTrainingComponent());
+                            if (trainingComponentLogicSuperSet.getTrainingComponent().getIsSuperSet() && Math.abs(previous_layout - trainingComponentLogicSuperSet.getTrainingComponent().getTrainingComponentId().getLayout()) <= previous_number_of_exercise - 1) {
                                 trainingComponentLogic = trainingComponentDtoIterator.next();
                                 index++;
-
                                 is_last_super_set = true;
+                                if(!trainingComponentDtoIterator.hasNext()){
+                                    trainingComponentDtos_superSet.add(trainingComponentLogic);
+                                }
                             } else {
                                 is_last_super_set = false;
                             }
@@ -489,8 +492,6 @@ public class BusinessLogicService {
                             is_last_super_set = false;
                         }
                     } while (trainingComponentDtoIterator.hasNext() && is_last_super_set);
-
-                    TrainingMethod trainingMethod = trainingComponentLogic.getTrainingComponent().getTrainingComponentId().getTrainingMethod();
 
                     int it = 0;
 
@@ -776,7 +777,7 @@ public class BusinessLogicService {
                     serieDto.setRpe(serie.getRpe());
                     trainingComponentDto.getSeries().add(serieDto);
                     trainingComponentDto.setSuperSet(serie.getTrainingComponent().getIsSuperSet());
-                } else if (trainingComponentDtoIter.getSuperSet() && Math.abs(trainingComponentDtoIter.getLayout() - serie.getTrainingComponent().getTrainingComponentId().getLayout()) <= serie.getTrainingComponent().getNbExerciseInComponent()) {
+                } else if (trainingComponentDtoIter.getSuperSet() && Math.abs(trainingComponentDtoIter.getLayout() - serie.getTrainingComponent().getTrainingComponentId().getLayout()) <= serie.getTrainingComponent().getNbExerciseInComponent() - 1) {
                     // If the training components are super set and following in the training. We say that the serie among to
                     // the training component of the first exercice.
                     TrainingComponentDto trainingComponentDto1 = new TrainingComponentDto();

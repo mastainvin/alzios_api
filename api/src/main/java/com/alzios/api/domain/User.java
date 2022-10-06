@@ -45,7 +45,7 @@ public class User {
     private List<Availability> availabilities = new ArrayList<>();
 
     @Nullable
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "goal_id")
     private Goal goal;
 
@@ -68,6 +68,10 @@ public class User {
     @ManyToOne(cascade = {CascadeType.ALL})
     @JoinColumn(name = "morphology_id")
     private Morphology morphology;
+
+    public void setGoal(Goal goal) {
+        this.goal = goal;
+    }
 
     public Boolean getEquipmentsChoosen() {
         return equipmentsChoosen;
@@ -143,10 +147,6 @@ public class User {
 
     public Goal getGoal() {
         return goal;
-    }
-
-    public void setGoal(Goal goal) {
-        this.goal = goal;
     }
 
     public List<Availability> getAvailabilities() {

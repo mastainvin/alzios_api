@@ -16,6 +16,17 @@ public class Equipment {
     @Column(name = "picture")
     private String picture;
 
+    @Column(name = "mandatory")
+    private Boolean mandatory = false;
+
+    public Boolean getMandatory() {
+        return mandatory;
+    }
+
+    public void setMandatory(Boolean mandatory) {
+        this.mandatory = mandatory;
+    }
+
     public String getPicture() {
         return picture;
     }
