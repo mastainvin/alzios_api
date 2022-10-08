@@ -32,7 +32,7 @@ public class Training {
     @JoinColumn(name = "training_type_id")
     private TrainingType trainingType;
 
-    @Column(name = "intensity")
+    @Column(name = "intensity", nullable = false)
     private @PositiveOrZero @Max(10) @Min(0) Integer intensity;
 
     @OrderBy("trainingComponentId.layout  ASC")

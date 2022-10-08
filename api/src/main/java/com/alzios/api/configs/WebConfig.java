@@ -15,8 +15,10 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOriginPatterns("**")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")
-                .allowedHeaders("location", "x-requested-with", "content-type", "accept", "origin", "authorization", "x-csrf-token", "x-auth-token")
-                .exposedHeaders("Authorization", "Location")
+                .allowedHeaders("x")
+                .exposedHeaders("x")
+                /*.allowedHeaders("location", "x-requested-with", "content-type", "accept", "origin", "authorization", "x-csrf-token", "x-auth-token")
+                .exposedHeaders("Authorization", "Location")*/
                 .allowCredentials(true);
 
         //registry.addMapping("/**").allowedHeaders("*").allowedMethods("*").allowCredentials(true).allowedOriginPatterns("*").exposedHeaders("location");
