@@ -38,7 +38,7 @@ public class User {
 
     @Nullable
     @OrderBy("layout ASC")
-    @ManyToMany(cascade = {CascadeType.ALL})
+    @ManyToMany
     @JoinTable(name = "user_availabilities",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "availability_id", referencedColumnName = "id"))
@@ -51,17 +51,17 @@ public class User {
 
     @Nullable
     @OrderBy("name ASC")
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(name = "user_body_limbs",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "body_limbs_id"))
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "body_limbs_id", referencedColumnName = "id"))
     private List<BodyLimb> injuries = new ArrayList<>();
 
     @OrderBy("name ASC")
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(name = "user_equipments",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "equipments_id"))
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "equipments_id", referencedColumnName = "id"))
     private List<Equipment> equipments = new ArrayList<>();
 
     @Nullable

@@ -1,9 +1,8 @@
 package com.alzios.api.v1.controllers;
 
-import com.alzios.api.domain.Exercise;
-import com.alzios.api.domain.User;
-import com.alzios.api.domain.UserExerciseData;
+import com.alzios.api.domain.*;
 import com.alzios.api.domain.embeddedIds.UserExerciseDataId;
+import com.alzios.api.dtos.ExerciseDto;
 import com.alzios.api.exceptions.ResourceNotFoundException;
 import com.alzios.api.repositories.ExerciseRepository;
 import com.alzios.api.repositories.UserExerciseDataRepository;
@@ -25,8 +24,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.IntFunction;
 
 @RestController
 @RequestMapping("/v1/userexercisedata")
@@ -56,6 +55,36 @@ public class UserExerciseDataController {
     @ApiResponse(responseCode = "404", description = "UserExerciseData not found.")
     public ResponseEntity<?> getUserExerciseData(@Valid @RequestBody UserExerciseDataId userExerciseDataId) {
         return new ResponseEntity<>(this.verifyUserExerciseData(userExerciseDataId), HttpStatus.OK);
+    }
+
+    @GetMapping("/{userId}")
+    @Operation(summary = "Get userExerciseData from id")
+    @ApiResponse(responseCode = "200", description = "UserExerciseData found.")
+    @ApiResponse(responseCode = "404", description = "UserExerciseData not found.")
+    public ResponseEntity<?> getUserExercises(@Valid @PathVariable String userId) {
+        List<UserExerciseData> userExerciseDataList = userExerciseDataRepository.findByUserExerciseDataIdUserId(userId);
+        List<ExerciseDto> exerciseDtoList = new ArrayList<>();
+        for(UserExerciseData userExerciseData : userExerciseDataList) {
+            ExerciseDto exerciseDto = new ExerciseDto();
+            exerciseDto.setId(userExerciseData.getUserExerciseDataId().getExercise().getId());
+            exerciseDto.setName(userExerciseData.getUserExerciseDataId().getExercise().getName());
+            exerciseDto.setDescription(userExerciseData.getUserExerciseDataId().getExercise().getDescription());
+            exerciseDto.setMark(userExerciseData.getMark());
+            exerciseDto.setDesiredNumberInTraining(userExerciseData.getDesiredNumberInTraining());
+            exerciseDto.setPicture(userExerciseData.getUserExerciseDataId().getExercise().getPicture());
+            exerciseDto.setVideo(userExerciseData.getUserExerciseDataId().getExercise().getVideo());
+            exerciseDto.setNbDone(userExerciseData.getNbDone());
+            exerciseDto.setWeight(userExerciseData.getWeight());
+            List<List<Equipment>> equipmentLists = new ArrayList<>();
+            for(EquipmentList equipmentList : userExerciseData.getUserExerciseDataId().getExercise().getEquipmentLists()) {
+                equipmentLists.add(equipmentList.getEquipments());
+            }
+            exerciseDto.setEquipmentLists(equipmentLists);
+
+            exerciseDtoList.add(exerciseDto);
+        }
+        exerciseDtoList.sort(Comparator.comparing(ExerciseDto::getName));
+        return new ResponseEntity<>(exerciseDtoList, HttpStatus.OK);
     }
 
     @GetMapping("/all")

@@ -1,13 +1,16 @@
 package com.alzios.api.repositories;
 
 import com.alzios.api.domain.Serie;
+import com.alzios.api.dtos.SerieDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import javax.persistence.SqlResultSetMapping;
 import javax.transaction.Transactional;
+import java.sql.Date;
 import java.util.List;
 
 public interface SerieRepository extends JpaRepository<Serie, Long> {
@@ -42,8 +45,20 @@ public interface SerieRepository extends JpaRepository<Serie, Long> {
      * @param exerciseId for this exercise
      * @return found series
      */
-    @Query("select s from Serie s where s.user.id = :userId and s.exercise.id = :exerciseId and not s.date is null and s.repetitions * s.weight >= (select max(s2.repetitions * s2.weight) from Serie s2 where s2.user.id = s.user.id and s2.exercise.id = s.exercise.id and s2.date = s.date)")
-    List<Serie> findPreviousBestSeries(@Param("userId") String userId, @Param("exerciseId") Long exerciseId);
+    @Query(value = "select s.date, s.weight * (1 + 30 / s.repetitions) as weight from serie s " +
+            "where s.user_id = :userId " +
+            "and s.exercise_id = :exerciseId " +
+            "and not s.date is null " +
+            "and s.weight * (1 + 30 / s.repetitions) >= (select max(s1.weight * (1 + 30 / s1.repetitions)) from serie s1 where s1.user_id = s.user_id and s1.exercise_id = s.exercise_id and s1.date = s.date) " +
+            "group by s.date, weight", nativeQuery = true)
+    List<BestSeries> findPreviousBestSeries(@Param("userId") String userId, @Param("exerciseId") Long exerciseId);
+
+
+    interface BestSeries {
+        Date getDate();
+        Double getWeight();
+    }
+
 
     /**
      * Query used to get every date that an user trained.

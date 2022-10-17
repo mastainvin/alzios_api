@@ -33,7 +33,7 @@ public class TrainingComponentId implements Serializable {
     @JoinColumn(name = "exercise_type_id")
     private ExerciseType exerciseType;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE}, orphanRemoval = true)
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE}, orphanRemoval = true)
     @NotFound(action = NotFoundAction.IGNORE)
     @JoinColumn(name = "biomecanic_function_list_id")
     private BiomecanicFunctionList biomecanicFunctionList;

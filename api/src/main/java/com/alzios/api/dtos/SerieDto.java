@@ -1,9 +1,14 @@
 package com.alzios.api.dtos;
 
 
+import javax.persistence.*;
 import java.sql.Date;
 
+
+
+
 public class SerieDto {
+
     private Long id;
     private Integer expectedRep;
     private Double expectedWeight;

@@ -751,8 +751,8 @@ public class BusinessLogicService {
                 trainingDto.setLayout(training.getLayout());
                 trainingDto.setTrainingComponents(new ArrayList<>());
                 trainingDto.setId(training.getId());
-                trainingDto.setName(training.getName());
-                trainingDto.setDescription(training.getDescription());
+                trainingDto.setName(training.getTrainingType().getName());
+                trainingDto.setDescription(training.getTrainingType().getDescription());
                 trainingDto.setIntensity(training.getIntensity());
                 trainingDto.setDone(serie.getDate() != null);
                 programDto.getTrainings().add(trainingDto);

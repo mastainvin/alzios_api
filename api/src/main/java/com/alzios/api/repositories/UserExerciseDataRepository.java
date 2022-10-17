@@ -11,7 +11,7 @@ public interface UserExerciseDataRepository extends JpaRepository<UserExerciseDa
 
     Optional<UserExerciseData> findByUserExerciseDataIdExerciseIdAndUserExerciseDataIdUserId(Long exerciceId, String userId);
 
-    List<UserExerciseData> findByUserExerciseDataIdUserId(Long userId);
+    List<UserExerciseData> findByUserExerciseDataIdUserId(String userExerciseDataId_user_id);
 
 
 }

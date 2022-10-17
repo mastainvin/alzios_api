@@ -1,8 +1,10 @@
 package com.alzios.api.v1.controllers;
 
+import com.alzios.api.domain.BiomecanicFunctionList;
 import com.alzios.api.domain.TrainingComponent;
 import com.alzios.api.domain.embeddedIds.TrainingComponentId;
 import com.alzios.api.exceptions.ResourceNotFoundException;
+import com.alzios.api.repositories.BiomecanicFunctionListRepository;
 import com.alzios.api.repositories.TrainingComponentRepository;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -28,6 +30,9 @@ public class TrainingComponentController {
 
     @Autowired
     private TrainingComponentRepository trainingComponentRepository;
+
+    @Autowired
+    private BiomecanicFunctionListRepository biomecanicFunctionListRepository;
 
     protected TrainingComponent verifyTrainingComponent(TrainingComponentId trainingComponentId) throws ResourceNotFoundException {
         Optional<TrainingComponent> trainingComponent = trainingComponentRepository.findById(trainingComponentId);
@@ -59,6 +64,9 @@ public class TrainingComponentController {
     @ApiResponse(responseCode = "201", description = "TrainingComponent created successfully")
     @ApiResponse(responseCode = "500", description = "Error creating trainingComponent")
     public ResponseEntity<?> createTrainingComponent(@Valid @RequestBody TrainingComponent trainingComponent) {
+        BiomecanicFunctionList biomecanicFunctionList = trainingComponent.getTrainingComponentId().getBiomecanicFunctionList();
+        biomecanicFunctionList = biomecanicFunctionListRepository.save(biomecanicFunctionList);
+        trainingComponent.getTrainingComponentId().setBiomecanicFunctionList(biomecanicFunctionList);
         trainingComponent = trainingComponentRepository.save(trainingComponent);
         return new ResponseEntity<>(trainingComponent.getTrainingComponentId(), HttpStatus.CREATED);
     }
@@ -69,6 +77,9 @@ public class TrainingComponentController {
     @ApiResponse(responseCode = "200", description = "TrainingComponent updated successfully")
     @ApiResponse(responseCode = "500", description = "Error update trainingComponent")
     public ResponseEntity<?> updateTrainingComponent(@Valid @RequestBody TrainingComponent trainingComponent) {
+        /*BiomecanicFunctionList biomecanicFunctionList = trainingComponent.getTrainingComponentId().getBiomecanicFunctionList();
+        biomecanicFunctionList = biomecanicFunctionListRepository.save(biomecanicFunctionList);
+        trainingComponent.getTrainingComponentId().setBiomecanicFunctionList(biomecanicFunctionList);*/
         verifyTrainingComponent(trainingComponent.getTrainingComponentId());
         trainingComponent = trainingComponentRepository.save(trainingComponent);
         return new ResponseEntity<>(HttpStatus.OK);

@@ -22,6 +22,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
 import java.security.Principal;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -91,9 +93,20 @@ public class SerieController {
     @PostAuthorize("#userId.equals(#principal.getName())")
     @Operation(summary = "Get best serie of an user for an exercise.")
     @ApiResponse(responseCode = "200", description = "Getting successful.")
-    public ResponseEntity<List<Serie>> getUserBestExerciseSeries(@PathVariable String userId, @PathVariable Long exerciseId, Principal principal) {
-        List<Serie> allSeries = serieRepository.findPreviousBestSeries(userId,exerciseId);
-        return new ResponseEntity<>(allSeries, HttpStatus.OK);
+    public ResponseEntity<List<SerieDto>> getUserBestExerciseSeries(@PathVariable String userId, @PathVariable Long exerciseId, Principal principal) {
+        List<SerieRepository.BestSeries> series = serieRepository.findPreviousBestSeries(userId,exerciseId);
+
+        List<SerieDto> seriesDto = new ArrayList<>();
+        for(SerieRepository.BestSeries serie : series){
+            SerieDto convertedSerie = new SerieDto();
+            convertedSerie.setWeight(serie.getWeight());
+            convertedSerie.setDate(serie.getDate());
+            seriesDto.add(convertedSerie);
+        }
+
+        seriesDto.sort(Comparator.comparing(SerieDto::getDate));
+
+        return new ResponseEntity<>(seriesDto, HttpStatus.OK);
     }
 
     @GetMapping("/user/{userId}/date")
