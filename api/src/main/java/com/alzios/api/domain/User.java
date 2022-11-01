@@ -65,7 +65,7 @@ public class User {
     private List<Equipment> equipments = new ArrayList<>();
 
     @Nullable
-    @ManyToOne(cascade = {CascadeType.ALL})
+    @ManyToOne
     @JoinColumn(name = "morphology_id")
     private Morphology morphology;
 

@@ -1,5 +1,6 @@
 package com.alzios.api.repositories;
 
+import com.alzios.api.domain.User;
 import com.alzios.api.domain.UserExerciseData;
 import com.alzios.api.domain.embeddedIds.UserExerciseDataId;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,6 +13,8 @@ public interface UserExerciseDataRepository extends JpaRepository<UserExerciseDa
     Optional<UserExerciseData> findByUserExerciseDataIdExerciseIdAndUserExerciseDataIdUserId(Long exerciceId, String userId);
 
     List<UserExerciseData> findByUserExerciseDataIdUserId(String userExerciseDataId_user_id);
+
+    void deleteByUserExerciseDataId_User(User user);
 
 
 }

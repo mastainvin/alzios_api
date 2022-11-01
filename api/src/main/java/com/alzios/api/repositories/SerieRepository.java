@@ -1,6 +1,7 @@
 package com.alzios.api.repositories;
 
 import com.alzios.api.domain.Serie;
+import com.alzios.api.domain.User;
 import com.alzios.api.dtos.SerieDto;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -54,6 +55,8 @@ public interface SerieRepository extends JpaRepository<Serie, Long> {
     List<BestSeries> findPreviousBestSeries(@Param("userId") String userId, @Param("exerciseId") Long exerciseId);
 
 
+
+
     interface BestSeries {
         Date getDate();
         Double getWeight();
@@ -71,5 +74,5 @@ public interface SerieRepository extends JpaRepository<Serie, Long> {
     @Query("select s from Serie s where s.user.id = :userId and not s.date = :seriesDate")
     List<Serie> findSeriesByDate(@Param("userId") String userId, @Param("seriesDate") String seriesDate);
 
-
+    void deleteByUser(User user);
 }

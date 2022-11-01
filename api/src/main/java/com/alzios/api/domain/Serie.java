@@ -25,7 +25,7 @@ public class Serie {
     @JoinColumn(name = "exercise_id")
     private Exercise exercise;
 
-    @ManyToOne(cascade = {CascadeType.DETACH})
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -55,6 +55,17 @@ public class Serie {
 
     @Column(name = "rest_duration")
     private Integer restDuration;
+
+    @Column(name = "training_layout")
+    private Integer trainingLayout;
+
+    public Integer getTrainingLayout() {
+        return trainingLayout;
+    }
+
+    public void setTrainingLayout(Integer trainingLayout) {
+        this.trainingLayout = trainingLayout;
+    }
 
     public Integer getRestDuration() {
         return restDuration;

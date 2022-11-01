@@ -13,11 +13,11 @@ import java.util.Optional;
 
 @Embeddable
 public class UserExerciseDataId implements Serializable {
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "exercise_id")
     private Exercise exercise;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 

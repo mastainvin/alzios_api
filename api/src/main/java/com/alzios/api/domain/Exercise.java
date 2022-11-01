@@ -21,6 +21,9 @@ public class Exercise extends RepresentationModel<Exercise> {
     @Column(name = "description", length = 1000)
     private String description;
 
+    @Column(name = "default_number_in_program")
+    private Integer defaultNumberInProgram = 1;
+
     @Column(name = "picture")
     private String picture;
 
@@ -43,6 +46,14 @@ public class Exercise extends RepresentationModel<Exercise> {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinTable(name = "exercise_equipment_lists")
     private List<EquipmentList> equipmentLists = new ArrayList<>();
+
+    public Integer getDefaultNumberInProgram() {
+        return defaultNumberInProgram;
+    }
+
+    public void setDefaultNumberInProgram(Integer default_number_in_program) {
+        this.defaultNumberInProgram = default_number_in_program;
+    }
 
     public List<EquipmentList> getEquipmentLists() {
         return equipmentLists;

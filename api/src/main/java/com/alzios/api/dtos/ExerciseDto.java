@@ -13,6 +13,7 @@ public class ExerciseDto {
     private Integer nbDone;
     private Double mark;
     private Double weight;
+
     private Integer desiredNumberInTraining;
     private List<List<Equipment>> equipmentLists;
 
